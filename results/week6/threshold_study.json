@@ -1,0 +1,171 @@
+{
+  "old": {
+    "光标挪动": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "median_value": 4.0849674405762926e-05
+    },
+    "输入光标闪烁": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "median_value": 4.595588325173594e-05
+    },
+    "时钟走一分钟": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "median_value": 3.404139533813577e-06
+    },
+    "弹出菜单": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 0.0012884668540209532
+    },
+    "发出一条消息": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 0.0006723175174556673
+    },
+    "弹对话框": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 0.0027522468008100986
+    },
+    "整页切换": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "median_value": 0.27527064085006714
+    },
+    "搜索框打字16字符": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 0.0003284994454588741
+    },
+    "搜索框打字8字符": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 0.00016510076238773763
+    },
+    "搜索框打字4字符": {
+      "kind": "real",
+      "trigger_rate": 0.0,
+      "median_value": 8.34014208521694e-05
+    }
+  },
+  "new": {
+    "光标挪动": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "cells_min": 0,
+      "cells_median": 2.0,
+      "cells_max": 2
+    },
+    "输入光标闪烁": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "cells_min": 1,
+      "cells_median": 2.0,
+      "cells_max": 2
+    },
+    "时钟走一分钟": {
+      "kind": "noise",
+      "trigger_rate": 0.0,
+      "cells_min": 0,
+      "cells_median": 0.0,
+      "cells_max": 0
+    },
+    "弹出菜单": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 21,
+      "cells_median": 31.0,
+      "cells_max": 85
+    },
+    "发出一条消息": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 14,
+      "cells_median": 14.0,
+      "cells_max": 27
+    },
+    "弹对话框": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 62,
+      "cells_median": 62.0,
+      "cells_max": 62
+    },
+    "整页切换": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 1375,
+      "cells_median": 1566.0,
+      "cells_max": 1566
+    },
+    "搜索框打字16字符": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 9,
+      "cells_median": 11.0,
+      "cells_max": 13
+    },
+    "搜索框打字8字符": {
+      "kind": "real",
+      "trigger_rate": 1.0,
+      "cells_min": 4,
+      "cells_median": 6.0,
+      "cells_max": 8
+    },
+    "搜索框打字4字符": {
+      "kind": "real",
+      "trigger_rate": 0.725,
+      "cells_min": 2,
+      "cells_median": 3.0,
+      "cells_max": 4
+    }
+  },
+  "sweep": {
+    "6": {
+      "noise_max_cells": 2,
+      "min_cells": 3,
+      "detect": {
+        "弹出菜单": 1.0,
+        "发出一条消息": 1.0,
+        "弹对话框": 1.0,
+        "整页切换": 1.0,
+        "搜索框打字16字符": 1.0,
+        "搜索框打字8字符": 1.0,
+        "搜索框打字4字符": 0.725
+      }
+    },
+    "12": {
+      "noise_max_cells": 2,
+      "min_cells": 3,
+      "detect": {
+        "弹出菜单": 1.0,
+        "发出一条消息": 1.0,
+        "弹对话框": 1.0,
+        "整页切换": 1.0,
+        "搜索框打字16字符": 1.0,
+        "搜索框打字8字符": 0.9,
+        "搜索框打字4字符": 0.03
+      }
+    },
+    "24": {
+      "noise_max_cells": 0,
+      "min_cells": 1,
+      "detect": {
+        "弹出菜单": 0.34,
+        "发出一条消息": 0.805,
+        "弹对话框": 1.0,
+        "整页切换": 1.0,
+        "搜索框打字16字符": 0.95,
+        "搜索框打字8字符": 0.71,
+        "搜索框打字4字符": 0.415
+      }
+    }
+  },
+  "chosen": {
+    "cell_delta": 6,
+    "min_cells": 3
+  }
+}

@@ -1,0 +1,149 @@
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "4fdb970b", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "4fdb970b", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.001, "act": 0.0, "verify": 0.0}, "elapsed": 0.002, "task": "4fdb970b", "t": 0.002}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.002, "task": "4fdb970b", "t": 0.002}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "4fdb970b", "t": 0.002}
+{"ev": "task_start", "instruction": "点击 Google Chrome 然后 搜索 McMaster 选课", "steps": ["点击 Google Chrome", "搜索 McMaster 选课"], "task": "13063c01", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "13063c01", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "13063c01", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "13063c01", "t": 0.0}
+{"ev": "step_start", "step": 2, "text": "搜索 McMaster 选课", "task": "13063c01", "t": 0.0}
+{"ev": "attempt", "step": 2, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 20, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "elapsed": 0.0, "task": "13063c01", "t": 0.001}
+{"ev": "step_end", "step": 2, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.001, "task": "13063c01", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 2, "steps_ok": 2, "attempts": 2, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "13063c01", "t": 0.001}
+{"ev": "task_start", "instruction": "打开 Google Chrome 搜索 天气", "steps": ["打开 Google Chrome", "搜索 天气"], "task": "27c6e063", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "打开 Google Chrome", "task": "27c6e063", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "27c6e063", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "27c6e063", "t": 0.0}
+{"ev": "step_start", "step": 2, "text": "搜索 天气", "task": "27c6e063", "t": 0.0}
+{"ev": "attempt", "step": 2, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 20, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "elapsed": 0.0, "task": "27c6e063", "t": 0.001}
+{"ev": "step_end", "step": 2, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "27c6e063", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 2, "steps_ok": 2, "attempts": 2, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "failure_reasons": {}, "unverified_steps": 1, "task": "27c6e063", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "4ead07e8", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "4ead07e8", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "perception_error", "route": "", "target": null, "detail": "RuntimeError('OCR 引擎崩溃(模拟)')", "timings": {}, "elapsed": 0.0, "task": "4ead07e8", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "perception_error", "route": "", "target": null, "detail": "RuntimeError('OCR 引擎崩溃(模拟)')", "timings": {}, "elapsed": 0.0, "task": "4ead07e8", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "4ead07e8", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 3, "reason": "", "elapsed": 0.0, "task": "4ead07e8", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "4ead07e8", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "0cff331e", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "0cff331e", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "perception_error", "route": "", "target": null, "detail": "RuntimeError('OCR 引擎崩溃(模拟)')", "timings": {}, "elapsed": 0.0, "task": "0cff331e", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "perception_error", "route": "", "target": null, "detail": "RuntimeError('OCR 引擎崩溃(模拟)')", "timings": {}, "elapsed": 0.0, "task": "0cff331e", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "perception_error", "route": "", "target": null, "detail": "RuntimeError('OCR 引擎崩溃(模拟)')", "timings": {}, "elapsed": 0.0, "task": "0cff331e", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "perception_error", "elapsed": 0.0, "task": "0cff331e", "t": 0.0}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {}, "failure_reasons": {"perception_error": 1}, "unverified_steps": 0, "task": "0cff331e", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "15092ef3", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "15092ef3", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "15092ef3", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "15092ef3", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 2, "reason": "", "elapsed": 0.001, "task": "15092ef3", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 2, "retries": 1, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "15092ef3", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "20b0d31a", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "20b0d31a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "action_failed", "route": "rule", "target": 10, "detail": "坐标(100,100)", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "elapsed": 0.0, "task": "20b0d31a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "action_failed", "route": "rule", "target": 10, "detail": "坐标(100,100)", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "elapsed": 0.0, "task": "20b0d31a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "20b0d31a", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 3, "reason": "", "elapsed": 0.001, "task": "20b0d31a", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "20b0d31a", "t": 0.001}
+{"ev": "task_start", "instruction": "关闭", "steps": ["关闭"], "task": "4f348675", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "关闭", "task": "4f348675", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_screen_change", "route": "rule", "target": 21, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "4f348675", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": true, "reason": "", "route": "rule", "target": 23, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "4f348675", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 2, "reason": "", "elapsed": 0.0, "task": "4f348675", "t": 0.0}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 2, "retries": 1, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "4f348675", "t": 0.0}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "475d1a4a", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "475d1a4a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "action_failed", "route": "rule", "target": 10, "detail": "坐标(5000,5000)", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "elapsed": 0.0, "task": "475d1a4a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "action_failed", "route": "rule", "target": 10, "detail": "坐标(5000,5000)", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "elapsed": 0.0, "task": "475d1a4a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "action_failed", "route": "rule", "target": 10, "detail": "坐标(5000,5000)", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "elapsed": 0.0, "task": "475d1a4a", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "action_failed", "elapsed": 0.0, "task": "475d1a4a", "t": 0.001}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0}, "failure_reasons": {"action_failed": 1}, "unverified_steps": 0, "task": "475d1a4a", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 主页", "steps": ["点击 主页"], "task": "1a2f77c1", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 主页", "task": "1a2f77c1", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "llm_invalid", "route": "llm", "target": 9999, "detail": "action=click target_id=9999", "timings": {"perceive": 0.0, "decide": 0.001}, "elapsed": 0.001, "task": "1a2f77c1", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": true, "reason": "", "route": "llm", "target": 31, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "1a2f77c1", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 2, "reason": "", "elapsed": 0.001, "task": "1a2f77c1", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 2, "retries": 1, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "1a2f77c1", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 主页", "steps": ["点击 主页"], "task": "5ca5cc15", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 主页", "task": "5ca5cc15", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "llm_timeout", "route": "llm", "target": null, "detail": ">0.2s", "timings": {"perceive": 0.0, "decide": 0.201}, "elapsed": 0.201, "task": "5ca5cc15", "t": 0.201}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": true, "reason": "", "route": "llm", "target": 31, "detail": "", "timings": {"perceive": 0.0, "decide": 0.001, "act": 0.0, "verify": 0.0}, "elapsed": 0.001, "task": "5ca5cc15", "t": 0.202}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 2, "reason": "", "elapsed": 0.202, "task": "5ca5cc15", "t": 0.202}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 2, "retries": 1, "elapsed_s": 0.2, "stage_s": {"perceive": 0.0, "decide": 0.2, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "5ca5cc15", "t": 0.203}
+{"ev": "task_start", "instruction": "点击 主页", "steps": ["点击 主页"], "task": "6c06773a", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 主页", "task": "6c06773a", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "llm_no_output", "route": "llm", "target": null, "detail": "RuntimeError('ollama 连接失败(模拟)')", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "6c06773a", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "llm_no_output", "route": "llm", "target": null, "detail": "RuntimeError('ollama 连接失败(模拟)')", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "6c06773a", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "llm_no_output", "route": "llm", "target": null, "detail": "RuntimeError('ollama 连接失败(模拟)')", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "6c06773a", "t": 0.002}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "llm_no_output", "elapsed": 0.001, "task": "6c06773a", "t": 0.002}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0}, "failure_reasons": {"llm_no_output": 1}, "unverified_steps": 0, "task": "6c06773a", "t": 0.002}
+{"ev": "task_start", "instruction": "点击 主页", "steps": ["点击 主页"], "task": "ed76d2e3", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 主页", "task": "ed76d2e3", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "ed76d2e3", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "ed76d2e3", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "ed76d2e3", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "no_candidate", "elapsed": 0.001, "task": "ed76d2e3", "t": 0.001}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0}, "failure_reasons": {"no_candidate": 1}, "unverified_steps": 0, "task": "ed76d2e3", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 不存在的东西 然后 点击 Google Chrome", "steps": ["点击 不存在的东西", "点击 Google Chrome"], "task": "e88060be", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 不存在的东西", "task": "e88060be", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "e88060be", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "e88060be", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "e88060be", "t": 0.002}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "no_candidate", "elapsed": 0.001, "task": "e88060be", "t": 0.002}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 3, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0}, "failure_reasons": {"no_candidate": 1}, "unverified_steps": 0, "task": "e88060be", "t": 0.002}
+{"ev": "task_start", "instruction": "点击 不存在的东西 然后 点击 Google Chrome", "steps": ["点击 不存在的东西", "点击 Google Chrome"], "task": "77faf8fa", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 不存在的东西", "task": "77faf8fa", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "77faf8fa", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 2, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "77faf8fa", "t": 0.001}
+{"ev": "attempt", "step": 1, "attempt": 3, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "77faf8fa", "t": 0.002}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 3, "reason": "no_candidate", "elapsed": 0.001, "task": "77faf8fa", "t": 0.002}
+{"ev": "step_start", "step": 2, "text": "点击 Google Chrome", "task": "77faf8fa", "t": 0.002}
+{"ev": "attempt", "step": 2, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "77faf8fa", "t": 0.002}
+{"ev": "step_end", "step": 2, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "77faf8fa", "t": 0.002}
+{"ev": "task_end", "ok": false, "steps_total": 2, "steps_ok": 1, "attempts": 4, "retries": 2, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {"no_candidate": 1}, "unverified_steps": 0, "task": "77faf8fa", "t": 0.002}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "808cee63", "t": 0.0}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 0, "retries": 0, "elapsed_s": 0.0, "stage_s": {}, "failure_reasons": {"budget_exceeded": 1}, "unverified_steps": 0, "task": "808cee63", "t": 0.0}
+{"ev": "task_start", "instruction": "打开 Chrome", "steps": ["打开 Chrome"], "task": "e28a5af2", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "打开 Chrome", "task": "e28a5af2", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "tool_use", "target": null, "detail": "start chrome", "timings": {}, "elapsed": 0.0, "task": "e28a5af2", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "e28a5af2", "t": 0.0}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {}, "failure_reasons": {}, "unverified_steps": 0, "task": "e28a5af2", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 Google Chrome", "steps": ["点击 Google Chrome"], "task": "0a54d1c4", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 Google Chrome", "task": "0a54d1c4", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "0a54d1c4", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "0a54d1c4", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "0a54d1c4", "t": 0.001}
+{"ev": "task_start", "instruction": "按 Ctrl+T", "steps": ["按 Ctrl+T"], "task": "30f6f667", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "按 Ctrl+T", "task": "30f6f667", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "direct", "target": null, "detail": "ctrl+t", "timings": {"act": 0.0}, "elapsed": 0.0, "task": "30f6f667", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.001, "task": "30f6f667", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"act": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "30f6f667", "t": 0.001}
+{"ev": "task_start", "instruction": "按 Ctrl+V", "steps": ["按 Ctrl+V"], "task": "81d93ac5", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "按 Ctrl+V", "task": "81d93ac5", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "direct", "target": null, "detail": "ctrl+v", "timings": {"act": 0.0}, "elapsed": 0.0, "task": "81d93ac5", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "81d93ac5", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"act": 0.0}, "failure_reasons": {}, "unverified_steps": 1, "task": "81d93ac5", "t": 0.001}
+{"ev": "task_start", "instruction": "向下滚动 3 次", "steps": ["向下滚动 3 次"], "task": "7831151b", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "向下滚动 3 次", "task": "7831151b", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "direct", "target": null, "detail": "down 3", "timings": {"act": 0.0}, "elapsed": 0.0, "task": "7831151b", "t": 0.0}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "7831151b", "t": 0.0}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"act": 0.0}, "failure_reasons": {}, "unverified_steps": 0, "task": "7831151b", "t": 0.001}
+{"ev": "task_start", "instruction": "搜索 天气", "steps": ["搜索 天气"], "task": "28d84c9f", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "搜索 天气", "task": "28d84c9f", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 20, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "elapsed": 0.0, "task": "28d84c9f", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "28d84c9f", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 1, "steps_ok": 1, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0, "text_check": 0.0}, "failure_reasons": {}, "unverified_steps": 1, "task": "28d84c9f", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 不存在的东西", "steps": ["点击 不存在的东西"], "task": "608fb3ae", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 不存在的东西", "task": "608fb3ae", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "608fb3ae", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 1, "reason": "no_candidate", "elapsed": 0.001, "task": "608fb3ae", "t": 0.001}
+{"ev": "step_start", "step": 2, "text": "点击 Google Chrome", "task": "608fb3ae", "t": 0.001}
+{"ev": "attempt", "step": 2, "attempt": 1, "ok": true, "reason": "", "route": "rule", "target": 10, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "elapsed": 0.0, "task": "608fb3ae", "t": 0.001}
+{"ev": "step_end", "step": 2, "ok": true, "attempts": 1, "reason": "", "elapsed": 0.0, "task": "608fb3ae", "t": 0.001}
+{"ev": "task_end", "ok": true, "steps_total": 2, "steps_ok": 1, "attempts": 2, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0, "act": 0.0, "verify": 0.0}, "failure_reasons": {"no_candidate": 1}, "unverified_steps": 0, "task": "608fb3ae", "t": 0.001}
+{"ev": "task_start", "instruction": "点击 不存在的东西 然后 点击 Google Chrome", "steps": ["点击 不存在的东西", "点击 Google Chrome"], "task": "3139e5e4", "t": 0.0}
+{"ev": "step_start", "step": 1, "text": "点击 不存在的东西", "task": "3139e5e4", "t": 0.0}
+{"ev": "attempt", "step": 1, "attempt": 1, "ok": false, "reason": "no_candidate", "route": "rule", "target": null, "detail": "", "timings": {"perceive": 0.0, "decide": 0.0}, "elapsed": 0.0, "task": "3139e5e4", "t": 0.001}
+{"ev": "step_end", "step": 1, "ok": false, "attempts": 1, "reason": "no_candidate", "elapsed": 0.0, "task": "3139e5e4", "t": 0.001}
+{"ev": "task_end", "ok": false, "steps_total": 1, "steps_ok": 0, "attempts": 1, "retries": 0, "elapsed_s": 0.0, "stage_s": {"perceive": 0.0, "decide": 0.0}, "failure_reasons": {"no_candidate": 1}, "unverified_steps": 0, "task": "3139e5e4", "t": 0.001}

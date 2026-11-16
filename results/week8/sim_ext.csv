@@ -1,0 +1,9 @@
+﻿run_id,timestamp,condition,resolution,dpi_scale,task_id,level,category,apps,instruction,repeat,exec_ok,auto_ok,manual_ok,final_ok,elapsed_s,wall_s,attempts,retries,steps_total,steps_ok,failure_reason,routes,t_perceive,t_decide,t_act,t_verify,unverified_steps
+sim-理想感知/允许系统启动/无按键滚动等待-E01-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动/无按键滚动等待,仿真,,E01,2,快捷键,notepad,打开记事本 然后 按 Ctrl+S,1,0,0,,0,0.0,0.0,4,2,2,1,no_candidate,tool_use|rule,0.0,0.0,0,0,0
+sim-理想感知/允许系统启动/无按键滚动等待-E02-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动/无按键滚动等待,仿真,,E02,3,滚动,chrome,打开 Chrome 然后 搜索 天气 然后 向下滚动,1,0,0,,0,0.0,0.0,5,2,3,2,no_candidate,tool_use|rule|rule,0.0,0.0,0.0,0.0,0
+sim-理想感知/允许系统启动/无按键滚动等待-E03-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动/无按键滚动等待,仿真,,E03,2,等待,edge,打开 Edge 然后 等待 2 秒 然后 搜索 Python 教程,1,0,0,,0,0.0,0.0,4,2,3,1,no_candidate,tool_use|rule,0.0,0.0,0,0,0
+sim-理想感知/允许系统启动/无按键滚动等待-E04-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动/无按键滚动等待,仿真,,E04,2,快捷键,chrome,打开 Chrome 然后 输入网址 www.wikipedia.org 然后 按 Ctrl+T,1,0,0,,0,0.0,0.0,5,2,3,2,no_candidate,tool_use|rule|rule,0.0,0.0,0.0,0.0,0
+sim-理想感知/允许系统启动-E01-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动,仿真,,E01,2,快捷键,notepad,打开记事本 然后 按 Ctrl+S,1,1,1,,1,0.0,0.0,2,0,2,2,,tool_use|direct,0,0,0.0,0,0
+sim-理想感知/允许系统启动-E02-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动,仿真,,E02,3,滚动,chrome,打开 Chrome 然后 搜索 天气 然后 向下滚动,1,1,1,,1,0.0,0.0,3,0,3,3,,tool_use|rule|direct,0.0,0.0,0.0,0.0,0
+sim-理想感知/允许系统启动-E03-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动,仿真,,E03,2,等待,edge,打开 Edge 然后 等待 2 秒 然后 搜索 Python 教程,1,1,1,,1,0.0,0.0,3,0,3,3,,tool_use|direct|rule,0.0,0.0,0.0,0.0,0
+sim-理想感知/允许系统启动-E04-1,2026-11-14 00:36:30,sim-理想感知/允许系统启动,仿真,,E04,2,快捷键,chrome,打开 Chrome 然后 输入网址 www.wikipedia.org 然后 按 Ctrl+T,1,1,1,,1,0.0,0.0,3,0,3,3,,tool_use|rule|direct,0.0,0.0,0.0,0.0,0

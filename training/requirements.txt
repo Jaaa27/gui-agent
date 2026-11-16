@@ -1,0 +1,7 @@
+torch>=2.2
+transformers>=4.44
+peft>=0.12
+accelerate>=0.33
+bitsandbytes>=0.43   # 仅 --load_4bit 需要（Linux/Colab）
+matplotlib
+numpy

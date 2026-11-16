@@ -1,0 +1,768 @@
+{
+  "scenarios": [
+    {
+      "name": "S01 正常单步点击",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S02 两步任务（点击后输入）",
+      "instruction": "点击 Google Chrome 然后 搜索 McMaster 选课",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "results",
+      "expect_state": "results",
+      "attempts": 2,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        },
+        {
+          "text": "搜索 McMaster 选课",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S03 隐含两步“打开X 搜索Y”",
+      "instruction": "打开 Google Chrome 搜索 天气",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "results",
+      "expect_state": "results",
+      "attempts": 2,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "打开 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        },
+        {
+          "text": "搜索 天气",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S04 感知前2次抛异常，第3次恢复",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 3,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S05 感知一直异常（预期失败：perception_error）",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "perception_error": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": false,
+          "attempts": 3,
+          "reason": "perception_error",
+          "route": ""
+        }
+      ]
+    },
+    {
+      "name": "S06 目标文字第1次没识别出来，第2次识别到",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 2,
+      "retries": 1,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 2,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S07 前2次点击失败，第3次成功",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 3,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S08 两个同名“关闭”，第一个点了没反应 → 换下一个",
+      "instruction": "关闭",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 2,
+      "retries": 1,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "关闭",
+          "ok": true,
+          "attempts": 2,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S09 坐标越界（预期失败：action_failed）",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "oob",
+      "expect_state": "oob",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "action_failed": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": false,
+          "attempts": 3,
+          "reason": "action_failed",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S10 规则无候选→大模型先给非法ID再给正确ID",
+      "instruction": "点击 主页",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 2,
+      "retries": 1,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 主页",
+          "ok": true,
+          "attempts": 2,
+          "reason": "",
+          "route": "llm"
+        }
+      ]
+    },
+    {
+      "name": "S11 大模型超时一次后恢复",
+      "instruction": "点击 主页",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 2,
+      "retries": 1,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 主页",
+          "ok": true,
+          "attempts": 2,
+          "reason": "",
+          "route": "llm"
+        }
+      ]
+    },
+    {
+      "name": "S12 大模型一直抛异常（预期失败：llm_no_output）",
+      "instruction": "点击 主页",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "results",
+      "expect_state": "results",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "llm_no_output": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 主页",
+          "ok": false,
+          "attempts": 3,
+          "reason": "llm_no_output",
+          "route": "llm"
+        }
+      ]
+    },
+    {
+      "name": "S13 没有大模型且规则无候选（预期失败：no_candidate）",
+      "instruction": "点击 主页",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "results",
+      "expect_state": "results",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 主页",
+          "ok": false,
+          "attempts": 3,
+          "reason": "no_candidate",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S14 第1步失败 + abort：后续步骤跳过",
+      "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 不存在的东西",
+          "ok": false,
+          "attempts": 3,
+          "reason": "no_candidate",
+          "route": "rule"
+        },
+        {
+          "text": "点击 Google Chrome",
+          "ok": false,
+          "attempts": 0,
+          "reason": "skipped",
+          "route": ""
+        }
+      ]
+    },
+    {
+      "name": "S15 第1步失败 + continue：后续步骤仍执行",
+      "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 4,
+      "retries": 2,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 不存在的东西",
+          "ok": false,
+          "attempts": 3,
+          "reason": "no_candidate",
+          "route": "rule"
+        },
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S16 任务时间预算耗尽",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 0,
+      "retries": 0,
+      "reasons": {
+        "budget_exceeded": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": false,
+          "attempts": 0,
+          "reason": "budget_exceeded",
+          "route": ""
+        }
+      ]
+    },
+    {
+      "name": "S17 系统 API 启动成功（Tool Use 路径）",
+      "instruction": "打开 Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "打开 Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "tool_use"
+        }
+      ]
+    },
+    {
+      "name": "S18 系统 API 启动失败 → 降级走视觉路径",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S21 快捷键直接执行（不找目标）",
+      "instruction": "按 Ctrl+T",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "edge",
+      "expect_state": "edge",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "按 Ctrl+T",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "direct"
+        }
+      ]
+    },
+    {
+      "name": "S22 快捷键后画面没变：不重试，只标记未确认",
+      "instruction": "按 Ctrl+V",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "按 Ctrl+V",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "direct"
+        }
+      ]
+    },
+    {
+      "name": "S23 滚动",
+      "instruction": "向下滚动 3 次",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "向下滚动 3 次",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "direct"
+        }
+      ]
+    },
+    {
+      "name": "S24 输入后屏幕上找不到输入的内容：标记未确认、不重复输入",
+      "instruction": "搜索 天气",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "results",
+      "expect_state": "results",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "搜索 天气",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S25 步骤失败后重新规划，换一条路完成任务",
+      "instruction": "点击 不存在的东西",
+      "expect_ok": true,
+      "ok": true,
+      "final_state": "chrome",
+      "expect_state": "chrome",
+      "attempts": 2,
+      "retries": 0,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 不存在的东西",
+          "ok": false,
+          "attempts": 1,
+          "reason": "no_candidate",
+          "route": "rule"
+        },
+        {
+          "text": "点击 Google Chrome",
+          "ok": true,
+          "attempts": 1,
+          "reason": "",
+          "route": "rule"
+        }
+      ]
+    },
+    {
+      "name": "S26 重新规划没给出结果：按 abort 处理",
+      "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
+      "expect_ok": false,
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 1,
+      "retries": 0,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": [
+        {
+          "text": "点击 不存在的东西",
+          "ok": false,
+          "attempts": 1,
+          "reason": "no_candidate",
+          "route": "rule"
+        },
+        {
+          "text": "点击 Google Chrome",
+          "ok": false,
+          "attempts": 0,
+          "reason": "skipped",
+          "route": ""
+        }
+      ]
+    },
+    {
+      "name": "S19 “搜索 chrome 教程”不应被当成启动 Chrome",
+      "instruction": "搜索 chrome 教程",
+      "expect_ok": "不启动应用",
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 3,
+      "retries": 2,
+      "reasons": {
+        "no_candidate": 1
+      },
+      "extra_check": true,
+      "passed": true,
+      "steps": []
+    },
+    {
+      "name": "S20 FAILSAFE 紧急停止必须中断任务而不是被重试",
+      "instruction": "点击 Google Chrome",
+      "expect_ok": "抛出异常",
+      "ok": false,
+      "final_state": "desktop",
+      "expect_state": "desktop",
+      "attempts": 0,
+      "retries": 0,
+      "reasons": {},
+      "extra_check": true,
+      "passed": true,
+      "steps": []
+    }
+  ],
+  "campaign": [
+    {
+      "p_miss": 0.1,
+      "p_click_fail": 0.1,
+      "p_no_effect": 0.1,
+      "max_retries": 1,
+      "trials": 3000,
+      "success_rate": 58.4,
+      "theory": 59.0,
+      "avg_attempts": 1.72,
+      "theory_attempts": 1.73,
+      "z": -0.72
+    },
+    {
+      "p_miss": 0.1,
+      "p_click_fail": 0.1,
+      "p_no_effect": 0.1,
+      "max_retries": 2,
+      "trials": 3000,
+      "success_rate": 89.4,
+      "theory": 89.3,
+      "avg_attempts": 2.37,
+      "theory_attempts": 2.37,
+      "z": 0.1
+    },
+    {
+      "p_miss": 0.1,
+      "p_click_fail": 0.1,
+      "p_no_effect": 0.1,
+      "max_retries": 3,
+      "trials": 3000,
+      "success_rate": 97.4,
+      "theory": 97.3,
+      "avg_attempts": 2.54,
+      "theory_attempts": 2.55,
+      "z": 0.21
+    },
+    {
+      "p_miss": 0.1,
+      "p_click_fail": 0.1,
+      "p_no_effect": 0.1,
+      "max_retries": 5,
+      "trials": 3000,
+      "success_rate": 99.8,
+      "theory": 99.8,
+      "avg_attempts": 2.6,
+      "theory_attempts": 2.6,
+      "z": -0.39
+    },
+    {
+      "p_miss": 0.2,
+      "p_click_fail": 0.15,
+      "p_no_effect": 0.15,
+      "max_retries": 1,
+      "trials": 3000,
+      "success_rate": 37.7,
+      "theory": 39.3,
+      "avg_attempts": 1.55,
+      "theory_attempts": 1.58,
+      "z": -1.76
+    },
+    {
+      "p_miss": 0.2,
+      "p_click_fail": 0.15,
+      "p_no_effect": 0.15,
+      "max_retries": 2,
+      "trials": 3000,
+      "success_rate": 73.1,
+      "theory": 73.8,
+      "avg_attempts": 2.49,
+      "theory_attempts": 2.51,
+      "z": -0.84
+    },
+    {
+      "p_miss": 0.2,
+      "p_click_fail": 0.15,
+      "p_no_effect": 0.15,
+      "max_retries": 3,
+      "trials": 3000,
+      "success_rate": 90.3,
+      "theory": 89.5,
+      "avg_attempts": 2.92,
+      "theory_attempts": 2.92,
+      "z": 1.51
+    },
+    {
+      "p_miss": 0.2,
+      "p_click_fail": 0.15,
+      "p_no_effect": 0.15,
+      "max_retries": 5,
+      "trials": 3000,
+      "success_rate": 98.5,
+      "theory": 98.3,
+      "avg_attempts": 3.16,
+      "theory_attempts": 3.15,
+      "z": 0.58
+    },
+    {
+      "p_miss": 0.3,
+      "p_click_fail": 0.2,
+      "p_no_effect": 0.2,
+      "max_retries": 1,
+      "trials": 3000,
+      "success_rate": 24.9,
+      "theory": 25.1,
+      "avg_attempts": 1.45,
+      "theory_attempts": 1.45,
+      "z": -0.24
+    },
+    {
+      "p_miss": 0.3,
+      "p_click_fail": 0.2,
+      "p_no_effect": 0.2,
+      "max_retries": 2,
+      "trials": 3000,
+      "success_rate": 54.1,
+      "theory": 56.1,
+      "avg_attempts": 2.56,
+      "theory_attempts": 2.55,
+      "z": -2.14
+    },
+    {
+      "p_miss": 0.3,
+      "p_click_fail": 0.2,
+      "p_no_effect": 0.2,
+      "max_retries": 3,
+      "trials": 3000,
+      "success_rate": 76.2,
+      "theory": 76.1,
+      "avg_attempts": 3.18,
+      "theory_attempts": 3.22,
+      "z": 0.09
+    },
+    {
+      "p_miss": 0.3,
+      "p_click_fail": 0.2,
+      "p_no_effect": 0.2,
+      "max_retries": 5,
+      "trials": 3000,
+      "success_rate": 92.5,
+      "theory": 93.3,
+      "avg_attempts": 3.86,
+      "theory_attempts": 3.78,
+      "z": -1.7
+    }
+  ]
+}

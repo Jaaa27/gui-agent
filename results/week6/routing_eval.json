@@ -1,0 +1,1117 @@
+{
+  "hard50": {
+    "n": 50,
+    "v1": {
+      "correct": 26,
+      "wrong": 0,
+      "llm": 24
+    },
+    "v2": {
+      "correct": 49,
+      "wrong": 1,
+      "llm": 0
+    },
+    "rows": [
+      {
+        "instruction": "点击 Google Chrome",
+        "note": "hard50",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 Edge 浏览器",
+        "note": "hard50",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "进入 Google Chrome",
+        "note": "hard50",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "寻找 Microsoft Edge",
+        "note": "hard50",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 Chrome",
+        "note": "hard50",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 Microsoft Edge 标签页",
+        "note": "hard50",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "Google Chrome",
+        "note": "hard50",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击图标 Microsoft Edge",
+        "note": "hard50",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "进入 Edge",
+        "note": "hard50",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "寻找浏览器 Google Chrome",
+        "note": "hard50",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "在浏览器搜索 McMaster 选课",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "McMaster 选课"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 Search Google 框并输入 Roush Mustang T56",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "Roush Mustang T56"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索 Python 教程",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "Python 教程"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "寻找搜索框输入 McMaster",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "McMaster"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "在搜索框输入 T56 变速箱",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "T56 变速箱"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索天气",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "天气"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "输入网址 www.google.com",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "www.google.com"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击搜索并输入 T56",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "T56"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索 GUI Agent",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "GUI Agent"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜一下周杰伦的歌",
+        "note": "hard50",
+        "expected": "type:[20]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": "周杰伦的歌"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 agent.py",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 GUI智能体项目计划制定.docx",
+        "note": "hard50",
+        "expected": "click:[31]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "进入 agent.py",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "双击 GUI智能体项目计划制定",
+        "note": "hard50",
+        "expected": "click:[31]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "agent.py",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击文本 agent.py",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "寻找 GUI智能体项目计划",
+        "note": "hard50",
+        "expected": "click:[31]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开链接 agent.py",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 GUI智能体项目",
+        "note": "hard50",
+        "expected": "click:[31]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 31
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "agent.py 标签页",
+        "note": "hard50",
+        "expected": "click:[30]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 30
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "发送测试消息内容",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "测试消息内容"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "在输入聊天信息处发送 爷爷我这周末回国",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "爷爷我这周末回国"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击输入聊天信息框，打字说 下周赛道见",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "下周赛道见"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "发送消息 你好",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "你好"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打字发送 123",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "123"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "发消息给 Tyler",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "Tyler"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "在输入框打字",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 20,
+          "text": ""
+        },
+        "v2_result": "wrong"
+      },
+      {
+        "instruction": "发送语音转文字消息",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "语音转文字消息"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打字回复 好的",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "好的"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "发送 表情包",
+        "note": "hard50",
+        "expected": "type:[40]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 40,
+          "text": "表情包"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "关闭",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "Exit",
+        "note": "hard50",
+        "expected": "click:[51]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击关闭",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 Exit",
+        "note": "hard50",
+        "expected": "click:[51]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击屏幕右上角的关闭",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "按下 Exit 按钮",
+        "note": "hard50",
+        "expected": "click:[51]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "寻找关闭",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击关闭按钮",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "退出 Exit",
+        "note": "hard50",
+        "expected": "click:[51]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 51
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击文本关闭",
+        "note": "hard50",
+        "expected": "click:[50]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 50
+        },
+        "v2_result": "correct"
+      }
+    ]
+  },
+  "adversarial": {
+    "n": 18,
+    "v1": {
+      "correct": 7,
+      "wrong": 3,
+      "llm": 8
+    },
+    "v2": {
+      "correct": 18,
+      "wrong": 0,
+      "llm": 0
+    },
+    "rows": [
+      {
+        "instruction": "搜索 天气",
+        "note": "屏幕上有含'天气'的小组件",
+        "expected": "type:[3]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 4
+        },
+        "v1_result": "wrong",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "天气"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索 chrome 教程",
+        "note": "输入内容里含应用名",
+        "expected": "type:[3]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "chrome"
+        },
+        "v1_result": "wrong",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "chrome 教程"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索 Edge 怎么用",
+        "note": "输入内容里含应用名",
+        "expected": "type:[3]",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "wrong",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "Edge 怎么用"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 Weather",
+        "note": "英文词里含停用词 the",
+        "expected": "click:[9]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 9
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 report_final.docx",
+        "note": "OCR 错字 l->1",
+        "expected": "click:[13]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 13
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击发送按钮",
+        "note": "含输入动词但其实是点击",
+        "expected": "click:[8]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 8
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 8
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "发送 你好",
+        "note": "没有位置词的输入指令",
+        "expected": "type:[7]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 7,
+          "text": "你好"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 搜狐",
+        "note": "'搜'开头的词",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 10
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 10
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜狐",
+        "note": "'搜'开头的词，没有动词",
+        "expected": "click:[10]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 10
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 10
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击退出登录",
+        "note": "'退出'在目标名字里",
+        "expected": "click:[12]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 12
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 12
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "关闭",
+        "note": "两个同名元素",
+        "expected": "click:[5, 6]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 5
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 5
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "搜索 如何发送邮件",
+        "note": "输入内容里含'发送'",
+        "expected": "type:[3]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "如何发送邮件"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击搜索",
+        "note": "点的是'搜索'按钮",
+        "expected": "click:[11]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 11
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "在输入框输入 你好",
+        "note": "有两个输入框，任意一个都可以接受",
+        "expected": "type:[3, 7]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "你好"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "type hello in the search box",
+        "note": "英文输入指令",
+        "expected": "type:[3]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 3,
+          "text": "hello"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "send hi",
+        "note": "英文发送指令",
+        "expected": "type:[7]",
+        "v1": {
+          "kind": "llm"
+        },
+        "v1_result": "llm",
+        "v2": {
+          "kind": "rule",
+          "action": "type",
+          "target_id": 7,
+          "text": "hi"
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "点击 天气",
+        "note": "对照：规则点击本来就能处理",
+        "expected": "click:[4]",
+        "v1": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 4
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "rule",
+          "action": "click",
+          "target_id": 4
+        },
+        "v2_result": "correct"
+      },
+      {
+        "instruction": "打开 Microsoft Edge",
+        "note": "对照：启动应用",
+        "expected": "click:launch",
+        "v1": {
+          "kind": "tool_use",
+          "app": "edge"
+        },
+        "v1_result": "correct",
+        "v2": {
+          "kind": "tool_use"
+        },
+        "v2_result": "correct"
+      }
+    ]
+  }
+}

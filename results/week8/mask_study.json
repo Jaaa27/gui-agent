@@ -1,0 +1,32 @@
+{
+  "none": {
+    "false_trigger": 1.0,
+    "detect": {
+      "弹出菜单": 1.0,
+      "弹对话框": 1.0,
+      "发出一条消息": 1.0
+    },
+    "masked_cells": 0.0,
+    "total_cells": 2304
+  },
+  "auto": {
+    "false_trigger": 0.0,
+    "detect": {
+      "弹出菜单": 1.0,
+      "弹对话框": 1.0,
+      "发出一条消息": 1.0
+    },
+    "masked_cells": 117.0,
+    "total_cells": 2304
+  },
+  "manual": {
+    "false_trigger": 0.0,
+    "detect": {
+      "弹出菜单": 1.0,
+      "弹对话框": 1.0,
+      "发出一条消息": 1.0
+    },
+    "masked_cells": 77.0,
+    "total_cells": 2304
+  }
+}

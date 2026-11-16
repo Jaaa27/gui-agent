@@ -1,0 +1,10 @@
+numpy
+opencv-python
+mss
+easyocr
+pyautogui
+pyperclip
+langchain-core
+langchain-ollama
+matplotlib
+openpyxl

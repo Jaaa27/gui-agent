@@ -1,0 +1,6 @@
+__pycache__/
+logs/
+outputs/
+som_test_result.png
+results/screens/
+data/*.jsonl

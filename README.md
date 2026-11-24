@@ -1,6 +1,6 @@
 # Desktop GUI Agent
 
-[中文](README.md) | English
+AUthor： Zhenxin Zhang
 
 A desktop GUI agent for Windows. You tell it what to do in one sentence (Chinese or English). It takes a screenshot, uses OCR to find and number the text on screen, decides where to click and what to type into which input box, drives the mouse and keyboard, and then checks whether the action actually took effect.
 

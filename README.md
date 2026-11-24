@@ -1,187 +1,193 @@
-# 桌面 GUI 智能体
+# Desktop GUI Agent
 
-一个运行在 Windows 上的桌面 GUI 智能体：用一句中文（或英文）告诉它要做什么，它截取屏幕，用 OCR 找到屏幕上的文字并编号，决定点哪里、往哪个输入框输入什么，然后操作鼠标键盘，并检查操作有没有生效。
+[中文](README.md) | English
 
-这是一个 8 周实习项目，各周的报告都在 `docs/` 目录，结项报告见 `docs/final_report.md`（Word 版：`docs/final_report.docx`）。
+A desktop GUI agent for Windows. You tell it what to do in one sentence (Chinese or English). It takes a screenshot, uses OCR to find and number the text on screen, decides where to click and what to type into which input box, drives the mouse and keyboard, and then checks whether the action actually took effect.
 
-![架构](results/final/fig_architecture.png)
+This is an 8-week internship project. The weekly reports are in `docs/`; the final report is `docs/final_report.md` (Word version: `docs/final_report.docx`). The reports are written in Chinese.
 
-## 它是怎么工作的
+![Architecture](results/final/fig_architecture.png)
 
-1. **拆解**：把“打开 Chrome 然后 搜索 天气 然后 向下滚动”这样的长指令拆成单步。
-2. **系统命令**：“打开记事本 / 计算器 / 资源管理器 / Chrome / Edge”优先直接用系统命令启动，失败了再走视觉路径。
-3. **感知**：截图，用 EasyOCR（或 PaddleOCR）识别文字，每段文字编号并记下中心坐标。
-4. **决策**：先用规则匹配（点击按关键词打分，输入先找输入框）；规则找不到目标，才把截图和元素列表交给大模型（本地 LLaVA，或第 5 周微调的 LoRA 模型），大模型只能从编号里选。
-5. **执行**：点击、输入（中文走剪贴板粘贴）、按键、滚动、等待。
-6. **验证**：比较操作前后的画面；输入类步骤还会复查屏幕上有没有出现输入的内容。
-7. **重试**：失败时按原因处理，比如换下一个候选、告诉大模型哪些元素试过了、等页面加载完再扫描；需要时让大模型重新规划剩下的步骤。
+## How it works
 
-## 环境要求
+1. **Decompose**: a long instruction such as "open Chrome then search weather then scroll down" is split into single steps.
+2. **System commands**: "open Notepad / Calculator / File Explorer / Chrome / Edge" is first tried with a system command. If that fails, the agent falls back to the visual path.
+3. **Perceive**: take a screenshot, recognize text with EasyOCR (or PaddleOCR), and give every text block an ID together with its center coordinates (Set-of-Mark).
+4. **Decide**: rules come first. Click instructions are scored against on-screen text by keyword; type instructions first look for an input box. Only when the rules find no target are the screenshot and element list passed to a large model (local LLaVA, or the LoRA model fine-tuned in week 5), and the model may only choose from the listed IDs.
+5. **Act**: click, type (non-ASCII text is pasted through the clipboard), press keys, scroll, wait.
+6. **Verify**: compare the screen before and after the action. For type steps, the agent also rescans the screen to check that the typed text actually appears.
+7. **Retry**: failures are handled according to their cause, e.g. try the next candidate, tell the model which elements have already been tried, or wait for the page to finish loading before scanning again. Optionally, the model can re-plan the remaining steps.
 
-- Windows 10 / 11，Python 3.10+（自适应降采样用 `GetDpiForSystem` 读取系统缩放比例，更早的系统会退回按截图尺寸估计）
-- 不需要 GPU 也能运行（只走规则路径）。用 LLaVA 需要安装 [Ollama](https://ollama.com)；LoRA 训练需要 8GB 以上显存的 GPU 或 Colab
-- 界面语言为中文或英文都可以，评估任务里两种关键词都写了
+## Requirements
 
-## 安装
+- Windows 10 / 11, Python 3.10+ (adaptive downscaling reads the display scale with `GetDpiForSystem`; older systems fall back to estimating it from the screenshot size)
+- No GPU needed to run (rule-only path). LLaVA requires [Ollama](https://ollama.com). LoRA training needs a GPU with 8 GB+ VRAM or Colab.
+- The UI language can be Chinese or English; the evaluation tasks list keywords for both.
+
+## Installation
 
     pip install -r requirements.txt
-    ollama pull llava                 # 只用规则路径可以跳过
-    python scripts/check_env.py       # 检查能不能拿到屏幕尺寸、移动鼠标、截图
+    ollama pull llava                 # skip if you only use the rule path
+    python scripts/check_env.py       # checks screen size, mouse movement and screenshots
 
-可选：
+Optional:
 
-    pip install paddleocr             # 想用 PaddleOCR 时（--ocr paddle）
+    pip install paddleocr             # to use PaddleOCR (--ocr paddle)
 
-训练部分的依赖单独放在 `training/requirements.txt`，见 `training/README.md`。
+Training dependencies are listed separately in `training/requirements.txt`; see `training/README.md`.
 
-## 快速开始
+## Quick start
 
-    python main.py --dry-run          # 第一次先试运行：只打日志，不动鼠标键盘
-    python main.py                    # 正式运行（默认用 llava 兜底）
-    python main.py --agent none       # 不用大模型，只走规则
+    python main.py --dry-run          # first run: log only, no mouse or keyboard actions
+    python main.py                    # normal run (LLaVA as fallback by default)
+    python main.py --agent none       # rules only, no large model
 
-启动后在命令行里输入指令，例如：
+Then type instructions at the prompt, for example:
 
-    打开记事本
-    打开 Chrome 然后 搜索 McMaster 选课
-    打开 Edge 然后 搜索 天气 然后 点击 图片
-    打开记事本 然后 按 Ctrl+S
-    打开 Chrome 然后 搜索 天气 然后 向下滚动
-    等待 3 秒
+    open notepad
+    open Chrome then search McMaster courses
+    open Edge then search weather then click Images
+    open notepad then press ctrl+s
+    open Chrome then search weather then scroll down
+    wait 3 seconds
 
-输入 `校准` 会重新校准画面里自己在变化的区域（视频、动图）；输入 `exit` 退出。鼠标甩到屏幕任意一个角落可以紧急停止。
+Chinese works the same way, e.g. `打开 Chrome 然后 搜索 天气`.
 
-每个任务结束后会打印每一步的结果：`OK` 表示成功，`OK?` 表示动作做了但屏幕上没找到能确认它做对了的证据（例如输入后没看到输入的文字），`FAIL` 后面是失败原因。
+Type `calibrate` (or `校准`) to recalibrate the regions of the screen that change on their own (videos, animations), and `exit` to quit. Moving the mouse into any corner of the screen triggers an emergency stop.
 
-## 命令行参数
+After each task the agent prints the result of every step: `OK` means success, `OK?` means the action was performed but nothing on screen confirmed it (e.g. the typed text was not found afterwards), and `FAIL` is followed by the failure reason.
 
-| 参数 | 默认 | 说明 |
+## Command-line options
+
+| Option | Default | Description |
 |---|---|---|
-| `--agent llava\|lora\|none` | llava | 规则找不到目标时用哪个大模型；none 表示不用 |
-| `--adapter <路径>` | outputs/lora_gui | `--agent lora` 时 LoRA 适配器的位置 |
-| `--dry-run` | 关 | 只打日志，不操作鼠标键盘 |
-| `--no-launch` | 关 | 不用系统命令启动应用，强制走视觉路径 |
-| `--max-side auto\|0\|<像素>` | auto | OCR 前截图长边的上限。auto 按系统缩放比例计算，保证缩小后文字不低于 13 像素；0 表示不缩小 |
-| `--ocr easyocr\|paddle` | easyocr | OCR 引擎 |
-| `--calibrate` | 关 | 启动时校准画面里自己在变的区域，验证时跳过 |
-| `--on-fail abort\|continue\|replan` | abort | 某一步最终失败后：停止 / 继续后面的步骤 / 让大模型根据当前屏幕重新规划（需要大模型） |
-| `--no-text-check` | 关 | 输入后不再复查屏幕上有没有输入的内容 |
-| `--no-verify` | 关 | 不检查操作前后画面有没有变化 |
-| `--retries N` | 3 | 每一步最多尝试几次 |
-| `--llm-timeout 秒` | 60 | 大模型单次调用超时 |
-| `--llm-plan` | 关 | 规则拆不开的长指令交给大模型拆 |
-| `--log-dir` | logs | 日志目录 |
+| `--agent llava\|lora\|none` | llava | Large model used when the rules find no target; `none` disables it |
+| `--adapter <path>` | outputs/lora_gui | Location of the LoRA adapter for `--agent lora` |
+| `--dry-run` | off | Log only, no mouse or keyboard actions |
+| `--no-launch` | off | Do not launch apps with system commands; force the visual path |
+| `--max-side auto\|0\|<pixels>` | auto | Upper limit of the screenshot's long side before OCR. `auto` derives it from the display scale so that text stays at least 13 px after downscaling; `0` disables downscaling |
+| `--ocr easyocr\|paddle` | easyocr | OCR engine |
+| `--calibrate` | off | At startup, detect screen regions that change on their own and ignore them during verification |
+| `--on-fail abort\|continue\|replan` | abort | When a step finally fails: stop / continue with the remaining steps / let the large model re-plan from the current screen (requires a model) |
+| `--no-text-check` | off | Do not rescan the screen for the typed text after typing |
+| `--no-verify` | off | Do not check whether the screen changed after an action |
+| `--retries N` | 3 | Maximum attempts per step |
+| `--llm-timeout <seconds>` | 60 | Timeout for a single model call |
+| `--llm-plan` | off | Let the large model split long instructions the rules cannot split |
+| `--log-dir` | logs | Log directory |
 
-## 日志
+## Logs
 
-- 控制台：INFO 级别，实时看每一步。
-- `logs/agent.log`：DEBUG 级别，2MB 轮转，保留 3 份。
-- `logs/trace.jsonl`：每行一个事件（任务开始、步骤开始、每次尝试、步骤结束、任务结束），带各阶段耗时，适合事后用脚本统计。
-- `som_test_result.png`：最近一次扫描的标注图（每段文字的框和编号）。
+- Console: INFO level, shows every step in real time.
+- `logs/agent.log`: DEBUG level, rotated at 2 MB, 3 backups kept.
+- `logs/trace.jsonl`: one event per line (task start, step start, each attempt, step end, task end) with per-stage timings, for analysis with scripts afterwards.
+- `som_test_result.png`: the annotated image from the latest scan (a box and an ID for every text block).
 
-## 目录结构
+## Project layout
 
-    main.py                     命令行入口
+    main.py                     command-line entry point
     gui_agent/
-      perceiver.py              截图、DPI 感知、自适应降采样、OCR、编号、画面指纹（含动态区域屏蔽）
-      matcher.py                意图识别（点击/输入/按键/滚动/等待）、元素打分、找输入框、抽取输入内容
-      planner.py                指令拆解；大模型拆分与失败后重新规划
-      executor.py               逐步执行、验证、按失败原因重试、系统命令启动
-      controller.py             鼠标键盘（点击、输入、按键、滚动），试运行控制器
-      agent.py                  LLaVA 大模型（Ollama）
-      agent_lora.py             第 5 周 LoRA 微调模型，接口和 agent.py 一样
-      monitor.py                日志与任务监控
-    training/                   第 5 周：合成数据、LoRA 训练、评估、生成报告
+      perceiver.py              screenshot, DPI awareness, adaptive downscaling, OCR, numbering,
+                                screen fingerprint (with dynamic-region masking)
+      matcher.py                intent detection (click/type/hotkey/scroll/wait), element scoring,
+                                input-box detection, text extraction
+      planner.py                instruction decomposition; model-based splitting and re-planning
+      executor.py               step execution, verification, cause-based retries, system-command launch
+      controller.py             mouse and keyboard (click, type, hotkey, scroll), dry-run controller
+      agent.py                  LLaVA (via Ollama)
+      agent_lora.py             week-5 LoRA fine-tuned model, same interface as agent.py
+      monitor.py                logging and task monitoring
+    training/                   week 5: synthetic data, LoRA training, evaluation, report generation
     evaluation/
-      tasks.py                  20 个评估任务 + 4 个扩展动作任务
-      runner.py                 真机评估（自动清理环境、人工确认、断点续跑）
-      sim.py / run_sim.py       理想感知仿真
-      analyze.py                统计（Wilson 区间、按难度/应用/分辨率/失败环节）、Excel、出图
-      record.py                 评估记录的字段
+      tasks.py                  20 evaluation tasks + 4 extended-action tasks
+      runner.py                 real-machine evaluation (environment cleanup, manual confirmation, resume)
+      sim.py / run_sim.py       ideal-perception simulation
+      analyze.py                statistics (Wilson intervals; by level/app/resolution/failure stage), Excel, charts
+      record.py                 fields of an evaluation record
     tests/
-      test_units.py             核心模块单元测试
-      test_evaluation.py        评估框架测试
-      test_week8.py             第 8 周新功能测试
-      fakes.py                  模拟屏幕、感知器、控制器、大模型
-      run_routing_eval.py       规则路由 v1 / v2 对比
-      run_fault_injection.py    故障注入场景与随机故障模拟
-      legacy_router.py          v1 路由逻辑（对比用）
-      cases.py                  对抗用例
-      make_charts.py            第 6 周的两张图
+      test_units.py             unit tests for the core modules
+      test_evaluation.py        tests for the evaluation framework
+      test_week8.py             tests for the week-8 features
+      fakes.py                  simulated screen, perceiver, controller and model
+      run_routing_eval.py       rule routing, v1 vs v2
+      run_fault_injection.py    fault-injection scenarios and random-fault simulation
+      legacy_router.py          v1 routing logic (for comparison)
+      cases.py                  adversarial cases
+      make_charts.py            the two week-6 charts
     scripts/
-      check_env.py              环境检查
-      bench_perception.py       真机感知测速、召回率、静止屏幕噪声检查
-      study_threshold.py        验证阈值实验
-      study_downscale.py        降采样代价实验（tesseract）
-      study_mask.py             动态区域屏蔽实验
-      run_demo.py               录演示视频用的任务序列
-      make_final_figures.py     结项报告的图
-      fetch_mind2web.py         从 Hugging Face 抽取 Mind2Web 样本
-    docs/                       第 6、7 周报告，结项报告，演示分镜
-    results/                    各周实验数据和图
+      check_env.py              environment check
+      bench_perception.py       real-machine OCR speed, recall, and idle-screen noise check
+      study_threshold.py        verification-threshold study
+      study_downscale.py        downscaling-cost study (tesseract)
+      study_mask.py             dynamic-region masking study
+      run_demo.py               task sequence for recording the demo video
+      make_final_figures.py     figures for the final report
+      fetch_mind2web.py         sample Mind2Web tasks from Hugging Face
+    docs/                       week 6 and 7 reports, final report, demo storyboard
+    results/                    experiment data and charts for each week
 
-## 测试
+## Tests
 
-不需要屏幕和 GPU：
+No screen or GPU required:
 
-    python -m unittest discover -s tests -t .       # 67 个单元测试
-    python -m tests.run_routing_eval                # 规则路由对比
-    python -m tests.run_fault_injection             # 26 个故障场景 + 随机故障模拟
+    python -m unittest discover -s tests -t .       # 67 unit tests
+    python -m tests.run_routing_eval                # rule-routing comparison
+    python -m tests.run_fault_injection             # 26 fault scenarios + random-fault simulation
 
-## 实验复现
+## Reproducing the experiments
 
-| 实验 | 命令 | 结果 |
+| Experiment | Command | Output |
 |---|---|---|
-| 规则路由对比 | `python -m tests.run_routing_eval` | `results/week6/routing_eval.json` |
-| 故障注入、随机故障模拟 | `python -m tests.run_fault_injection` | `results/week6/fault_injection.json` |
-| 验证阈值 | `python -m scripts.study_threshold` | `results/week6/threshold_study.json` |
-| 降采样代价（需 tesseract） | `python -m scripts.study_downscale` | `results/week6/downscale_cost.json` |
-| 动态区域屏蔽 | `python -m scripts.study_mask` | `results/week8/mask_study.json` |
-| 20 个任务的仿真 | `python -m evaluation.run_sim --out results/week7_sim/sim_runs.csv` | 同目录 |
-| 扩展动作仿真（前后对比） | `python -m evaluation.run_sim --ext --out results/week8/sim_ext.csv` | 同目录 |
-| 统计与出图 | `python -m evaluation.analyze --inputs <csv...> --out <目录>` | xlsx 和图 |
-| 结项报告的图 | `python -m scripts.make_final_figures` | `results/final/` |
+| Rule-routing comparison | `python -m tests.run_routing_eval` | `results/week6/routing_eval.json` |
+| Fault injection, random-fault simulation | `python -m tests.run_fault_injection` | `results/week6/fault_injection.json` |
+| Verification threshold | `python -m scripts.study_threshold` | `results/week6/threshold_study.json` |
+| Downscaling cost (needs tesseract) | `python -m scripts.study_downscale` | `results/week6/downscale_cost.json` |
+| Dynamic-region masking | `python -m scripts.study_mask` | `results/week8/mask_study.json` |
+| Simulation of the 20 tasks | `python -m evaluation.run_sim --out results/week7_sim/sim_runs.csv` | same folder |
+| Extended actions, before vs after | `python -m evaluation.run_sim --ext --out results/week8/sim_ext.csv` | same folder |
+| Statistics and charts | `python -m evaluation.analyze --inputs <csv...> --out <folder>` | xlsx and charts |
+| Final-report figures | `python -m scripts.make_final_figures` | `results/final/` |
 
-## 真机评估
+## Real-machine evaluation
 
     python -m evaluation.runner --agent llava --repeat 3 --resolution-label 1920x1080-125%
     python -m evaluation.runner --agent llava --repeat 3 --no-launch --out results/eval_vision_only.csv
     python -m evaluation.analyze --inputs results/eval_runs.csv results/eval_vision_only.csv --out results/week7
 
-评估过程中不要动鼠标键盘。6 个自动判定不可靠的任务会暂停等人工确认（`--manual all` 全部确认，`--manual none` 都不确认）。中断后重新运行同一条命令会跳过已经记录的轮次。想对比分辨率，改系统显示设置后换一个 `--resolution-label` 再跑。
+Do not touch the mouse or keyboard while the evaluation is running. The 6 tasks whose automatic check is unreliable pause for manual confirmation (`--manual all` confirms every task, `--manual none` confirms none). If interrupted, rerun the same command and recorded runs are skipped. To compare resolutions, change the display settings and run again with a different `--resolution-label`.
 
-建议在评估之前先运行：
+Before evaluating, it is worth running:
 
-    python -m scripts.bench_perception --idle-check     # 静止屏幕上相邻帧变化的格子数，应明显小于 3
-    python -m scripts.bench_perception --repeat 5       # 不同降采样设置下的速度和召回率
+    python -m scripts.bench_perception --idle-check     # changed cells between frames on an idle screen; should be well below 3
+    python -m scripts.bench_perception --repeat 5       # speed and recall under different downscaling settings
 
-## 演示
+## Demo
 
-    python -m scripts.run_demo --dry-run                # 先试一遍
-    python -m scripts.run_demo --agent llava            # 正式录制
+    python -m scripts.run_demo --dry-run                # rehearsal
+    python -m scripts.run_demo --agent llava            # recording
 
-依次运行 7 个演示任务，每个任务前打印标题并倒数，结束后关掉打开的应用。分镜和录制建议见 `docs/demo_script.md`。
+Runs 7 demo tasks in order, printing a title and a countdown before each and closing the opened apps afterwards. The storyboard and recording tips are in `docs/demo_script.md`. The demo instructions are in Chinese.
 
-## 训练（第 5 周）
+## Training (week 5)
 
     python -m training.build_dataset --out data
     python -m training.train_lora --data data --out outputs/lora_gui
     python -m training.evaluate --data data --adapter outputs/lora_gui --out results/week5
     python -m training.report --results results/week5 --train_log outputs/lora_gui/training_log.json --out report
 
-训练好的适配器用 `python main.py --agent lora --adapter outputs/lora_gui` 接入。详见 `training/README.md`。
+Use the trained adapter with `python main.py --agent lora --adapter outputs/lora_gui`. See `training/README.md` for details.
 
-## 常见问题
+## Troubleshooting
 
-- **点击位置整体偏移**：通常是 Windows 显示缩放导致的。程序启动时会开启 DPI 感知并换算坐标；如果仍然偏，确认是从 `main.py` 启动的（DPI 感知必须在创建任何截图对象之前设置）。
-- **中文输入不进去**：需要 `pip install pyperclip`，中文是通过剪贴板粘贴的，操作后会恢复原来的剪贴板内容。
-- **总是报“点了画面没变”**：先用 `--idle-check` 看看静止时的屏幕噪声；画面里有视频或动图时用 `--calibrate` 或输入 `校准`。
-- **大模型初始化失败**：确认 Ollama 正在运行并且已经 `ollama pull llava`；失败时程序会自动退回只走规则路径。
-- **识别不到小字**：2K/4K 屏建议保持 `--max-side auto` 或改成 `0`，不要设得太小。
+- **Clicks are offset**: usually caused by Windows display scaling. The agent enables DPI awareness at startup and converts coordinates; if clicks are still off, make sure you started it from `main.py` (DPI awareness must be set before any screenshot object is created).
+- **Chinese text is not typed**: install `pyperclip`. Non-ASCII text is pasted through the clipboard, and the original clipboard content is restored afterwards.
+- **Always reports "screen did not change"**: check the idle-screen noise with `--idle-check`; if the screen has videos or animations, use `--calibrate` or type `calibrate`.
+- **Model fails to initialize**: make sure Ollama is running and `ollama pull llava` has been done. On failure the agent automatically falls back to the rule path.
+- **Small text is not recognized**: on 2K/4K screens keep `--max-side auto` or set it to `0`; do not set it too low.
 
-## 已知局限
+## Known limitations
 
-- 只识别文字，图标、没有文字的控件、空白输入区无法定位（比如记事本的空白编辑区）。
-- 验证能证明“画面变了”和“输入的内容出现了”，但不能证明点击一定点对了。
-- 重新规划依赖大模型，并且只以屏幕上的文字为依据。
-- 阈值、降采样、屏蔽的实验是在合成屏幕上做的，换了机器建议用上面的工具复核一次。
+- Only text is recognized. Icons, controls without text, and empty input areas (e.g. Notepad's blank editing area) cannot be located.
+- Verification can show that "the screen changed" and "the typed text appeared", but not that a click hit the right target.
+- Re-planning depends on a large model and relies only on the text on screen.
+- The threshold, downscaling and masking studies were run on synthetic screens; on a new machine, re-check them with the tools above.

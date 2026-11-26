@@ -1,29 +1,32 @@
-"""指令理解和元素匹配，纯规则，只用标准库。
+"""Instruction understanding and element matching. Pure rules, standard library only.
 
-大致流程：先判断指令是"点击"还是"输入"，点击就拿关键词去给屏幕上的文字打分排序，
-输入就先抠出要打的内容、再挑最像输入框的元素。规则找不到才轮到大模型。
+Flow: first decide whether the instruction is a "click" or a "type". For a click, its keywords are used to score
+and rank the text on screen. For a type, the text to type is extracted and the most input-box-like element is chosen.
+Only when the rules find nothing is the LLM consulted.
+
+The Chinese word lists and regexes below are functional: they are what the rules match against.
 """
 import difflib
 import re
 
-# 开头的动词，以及"按钮/图标"这类不属于目标名字的词
+# Leading verbs, and words like "button"/"icon" that are not part of the target name
 _LEAD_CN = ["点一下", "点击", "打开", "进入", "双击", "按下", "寻找", "找到", "启动", "运行"]
 _LEAD_EN = ["double click", "click", "open", "find", "press", "launch", "run"]
 _NOISE_CN = ["标签页", "图标", "按钮", "链接", "文本", "文字"]
 _NOISE_EN = ["tab", "button", "icon", "link", "text", "the"]
-# 第二档：第一档匹配不上才去掉。有些字（比如"退出"）本身可能就是目标名字的一部分
+# Tier 2: only stripped if tier 1 finds no match. Some words (e.g. "退出" = exit) can be part of the target name itself
 _TIER2_CN = ["屏幕右上角的", "屏幕左上角的", "屏幕右下角的", "屏幕左下角的", "右上角的", "左上角的",
              "屏幕", "浏览器", "退出"]
 
 
 def normalize(s):
-    """转小写，去掉空白和常见标点。"""
+    """Lower-case and strip whitespace and common punctuation."""
     return re.sub(r"[\s._\-…,，:：!！'\"“”‘’()（）\[\]【】。]", "", str(s).lower())
 
 
 def _strip_lead(s):
     s = re.sub(r"^(?:请|帮我|麻烦你?)\s*", "", s.strip())
-    for _ in range(2):                      # 最多剥两层，比如"请 点击 打开"这种
+    for _ in range(2):                      # strip at most two layers, e.g. "请 点击 打开" (please click open)
         low, hit = s.lower(), False
         for v in _LEAD_CN:
             if low.startswith(v):
@@ -31,7 +34,7 @@ def _strip_lead(s):
                 break
         if not hit:
             for v in _LEAD_EN:
-                # 英文要看词边界，不然 openai 会被剥成 open + ai
+                # English needs word boundaries, otherwise "openai" would be stripped to open + ai
                 if low.startswith(v) and (len(low) == len(v) or not low[len(v)].isalnum()):
                     s, hit = s[len(v):].lstrip(), True
                     break
@@ -44,13 +47,13 @@ def _remove(s, cn, en):
     for w in sorted(cn, key=len, reverse=True):
         s = s.replace(w, " ")
     for w in en:
-        # 英文词按单词边界删。v1 直接 replace，"Weather" 里的 the 会被删掉
+        # English words are removed on word boundaries. v1 used plain replace, which removed "the" from "Weather"
         s = re.sub(rf"(?<![A-Za-z]){re.escape(w)}(?![A-Za-z])", " ", s, flags=re.I)
     return s
 
 
 def candidate_keywords(instruction):
-    """返回关键词列表，从严到宽，已经 normalize 并去重。"""
+    """Return keywords from strictest to loosest, normalized and de-duplicated."""
     stripped = _strip_lead(instruction)
     t1 = normalize(_remove(stripped, _NOISE_CN, _NOISE_EN))
     t2 = normalize(_remove(stripped, _NOISE_CN + _TIER2_CN, _NOISE_EN))
@@ -66,7 +69,7 @@ def candidate_keywords(instruction):
 
 
 def _partial_ratio(a, b):
-    """短的那个在长的里面滑一遍，取最高相似度。"""
+    """Slide the shorter string over the longer one and return the best similarity."""
     if not a or not b:
         return 0.0
     if len(a) > len(b):
@@ -80,7 +83,7 @@ def _partial_ratio(a, b):
 
 
 def rank_candidates(instruction, elements, fuzzy=True, min_fuzzy=0.82):
-    """给点击类指令排候选，返回 [{"id","score","how","text"}]，分高的在前。"""
+    """Rank candidates for a click instruction. Returns [{"id","score","how","text"}], best first."""
     kws = candidate_keywords(instruction)
     items = []
     for k, v in elements.items():
@@ -102,12 +105,12 @@ def rank_candidates(instruction, elements, fuzzy=True, min_fuzzy=0.82):
         if len(kw) >= 2:
             for eid, txt, n in items:
                 if eid not in found and kw in n:
-                    # 包含匹配时文字越短越像目标
+                    # For substring matches, shorter texts are more likely to be the target
                     found[eid] = (0.9 - pen - 0.002 * min(len(txt), 100), "contains")
         if found:
             break
 
-    # 精确和包含都没中，再试模糊匹配，扛 OCR 的个别错字（太短的词不做，误伤太多）
+    # Neither exact nor substring matched: try fuzzy matching to tolerate the odd OCR error (skipped for very short words - too many false hits)
     if not found and fuzzy:
         for kw in kws:
             if len(kw) < 4:
@@ -126,7 +129,7 @@ def rank_candidates(instruction, elements, fuzzy=True, min_fuzzy=0.82):
     return out
 
 
-# "框/栏/处/里/中/并/逗号"后面紧跟输入动词，基本就是"在某处输入"
+# A typing verb right after "box/bar/at/in/and/comma" almost always means "type into <somewhere>"
 _RULE1 = re.compile(
     r"(?:框|栏|处|里|中|并|，|,|；|;)\s*(?:并且|并)?\s*"
     r"(?P<verb>输入|打字说|打字发送|打字回复|打字|发送|回复|type|send|enter)\s*(?P<rest>.*)$",
@@ -136,7 +139,7 @@ _VERBS2 = ["输入网址", "访问网址", "打开网址", "打字发送", "打�
            "发消息", "发送", "回复", "搜索一下", "搜一下", "搜索", "输入", "打字",
            "search for", "search", "send message", "send", "reply", "type",
            "go to", "visit", "enter url"]
-# 单独一个"搜"只有后面跟空格才算动词，不然"搜狐""搜狗"会被当成搜索指令
+# A lone "搜" (search) only counts as a verb when followed by a space; otherwise site names like 搜狐 / 搜狗 would match
 _RULE2 = re.compile(
     "(?P<verb>" + "|".join(re.escape(v) for v in sorted(_VERBS2, key=len, reverse=True)) + r"|搜(?=\s))"
     r"\s*(?P<rest>.*)$", re.I | re.S)
@@ -151,9 +154,9 @@ _EN_TYPE_IN = re.compile(
 
 
 # ----------------------------------------------------------------------
-# 不需要找目标的动作：按键、滚动、等待（第 8 周加的）
-# 这三类直接执行，不走 OCR 匹配。必须在 detect_intent 的其他判断之前识别，
-# 否则"按下 回车"会被当成点击一个叫"回车"的按钮。
+# Actions that need no target: hotkey, scroll, wait (added in week 8).
+# They run directly without OCR matching. They must be detected before the other checks in detect_intent,
+# otherwise "按下 回车" (press Enter) would be treated as clicking a button called "Enter".
 # ----------------------------------------------------------------------
 _KEY_ALIASES = {
     "ctrl": "ctrl", "control": "ctrl", "alt": "alt", "shift": "shift", "win": "win", "windows": "win",
@@ -167,7 +170,7 @@ _HOTKEY = re.compile(r"^\s*(?:请|帮我)?\s*(?:按下|按|press|快捷键|hotke
 
 
 def parse_hotkey(instruction):
-    """"按 Ctrl+S" -> ["ctrl", "s"]。只要有一个词不是键名就返回 None（"按下 搜索按钮"是点击）。"""
+    """"按 Ctrl+S" -> ["ctrl", "s"]. Returns None if any token is not a key name ("按下 搜索按钮" = press the search button, is a click)."""
     m = _HOTKEY.match(instruction)
     if not m:
         return None
@@ -186,11 +189,11 @@ def parse_hotkey(instruction):
 _SCROLL = re.compile(
     r"^\s*(?:请|帮我)?\s*(?:(?:向|往)\s*)?(?P<d1>上|下)?\s*(?:滚动|滚|滑动|翻页|scroll)\s*(?:到|to)?\s*"
     r"(?P<d2>顶部|底部|最上面|最下面|上|下|top|bottom|up|down)?\s*(?P<n>\d+)?\s*(?:次|下|格|页|行)?\s*$", re.I)
-_SCROLL_TO_END = 50          # "滚动到底部"用一个足够大的格数代替
+_SCROLL_TO_END = 50          # "scroll to the bottom/top" uses a large enough number of notches
 
 
 def parse_scroll(instruction):
-    """"向下滚动 3 次" -> ("down", 3)；"滚动到顶部" -> ("up", 50)。没写方向默认向下 5 格。"""
+    """"向下滚动 3 次" (scroll down 3 times) -> ("down", 3); "滚动到顶部" (scroll to top) -> ("up", 50). Default: down 5 notches."""
     m = _SCROLL.match(instruction)
     if not m:
         return None
@@ -212,7 +215,7 @@ def parse_wait(instruction, default=2.0, cap=30.0):
 
 
 def parse_direct(instruction):
-    """返回 ("hotkey", [键...]) / ("scroll", (方向, 格数)) / ("wait", 秒)，都不是返回 None。"""
+    """Return ("hotkey", [keys...]) / ("scroll", (direction, notches)) / ("wait", seconds), or None."""
     for kind, fn in (("wait", parse_wait), ("scroll", parse_scroll), ("hotkey", parse_hotkey)):
         v = fn(instruction)
         if v is not None:
@@ -221,7 +224,7 @@ def parse_direct(instruction):
 
 
 def text_visible(payload, texts, min_ratio=0.8):
-    """输入的内容有没有出现在屏幕上。OCR 可能错一两个字，长一点的内容允许模糊匹配。"""
+    """Does the typed text appear on screen? OCR may get a character or two wrong, so longer texts may match fuzzily."""
     p = normalize(payload)
     if not p:
         return True
@@ -237,7 +240,7 @@ def text_visible(payload, texts, min_ratio=0.8):
 
 
 def detect_intent(instruction):
-    """返回 "click" / "type"，或者不用找目标的 "hotkey" / "scroll" / "wait"。"""
+    """Return "click" / "type", or one of the target-free intents "hotkey" / "scroll" / "wait"."""
     s = instruction.strip()
     direct = parse_direct(s)
     if direct:
@@ -258,7 +261,7 @@ def _clean_payload(p):
 
 
 def extract_payload(instruction):
-    """从输入类指令里抠出要打的内容，抠不到返回空串。"""
+    """Extract the text to type from a type instruction; returns "" if none is found."""
     s = instruction.strip()
     m = _EN_TYPE_IN.match(s)
     if m:
@@ -278,10 +281,10 @@ _H_ANY = ["输入", "请输入", "type", "enter", "input", "文本框", "在此"
 
 
 def input_category(instruction, payload=""):
-    """判断是往搜索框、聊天框还是随便哪个输入框里打字。"""
+    """Decide whether the text goes into a search box, a chat box, or any input box."""
     head = instruction
     if payload and instruction.rstrip().endswith(payload):
-        head = instruction.rstrip()[:-len(payload)]      # 内容里的词不能影响分类
+        head = instruction.rstrip()[:-len(payload)]      # words inside the payload must not affect the classification
     h = head.lower()
     if re.search(r"搜|search|google|网址|url|访问|go to|visit", h):
         return "search"
@@ -291,7 +294,7 @@ def input_category(instruction, payload=""):
 
 
 def find_input_boxes(instruction, elements, payload=None):
-    """按"像不像输入框"给元素打分，返回候选列表，分高的在前。"""
+    """Score elements by how much they look like an input box. Returns candidates, best first."""
     if payload is None:
         payload = extract_payload(instruction)
     cat = input_category(instruction, payload)
@@ -308,10 +311,10 @@ def find_input_boxes(instruction, elements, payload=None):
             continue
         score = 3 * sum(1 for h in primary if normalize(h) in n)
         score += 1 if any(normalize(h) in n for h in _H_ANY) else 0
-        score += 1 if ("..." in raw or "…" in raw) else 0     # 占位符一般以省略号结尾
+        score += 1 if ("..." in raw or "…" in raw) else 0     # placeholders usually end with an ellipsis
         if score == 0:
             continue
-        if len(raw) <= 3:                  # "搜索"这种短词更像按钮，不像输入框
+        if len(raw) <= 3:                  # short words like "搜索" (Search) look more like buttons than input boxes
             score -= 1
         if score >= 1:
             out.append({"id": eid, "score": float(score), "how": "input_box", "text": raw})

@@ -821,7 +821,7 @@
     "rows": [
       {
         "instruction": "搜索 天气",
-        "note": "屏幕上有含'天气'的小组件",
+        "note": "a widget on screen contains '天气' (weather)",
         "expected": "type:[3]",
         "v1": {
           "kind": "rule",
@@ -839,7 +839,7 @@
       },
       {
         "instruction": "搜索 chrome 教程",
-        "note": "输入内容里含应用名",
+        "note": "the text to type contains an app name",
         "expected": "type:[3]",
         "v1": {
           "kind": "tool_use",
@@ -856,7 +856,7 @@
       },
       {
         "instruction": "搜索 Edge 怎么用",
-        "note": "输入内容里含应用名",
+        "note": "the text to type contains an app name",
         "expected": "type:[3]",
         "v1": {
           "kind": "tool_use",
@@ -873,7 +873,7 @@
       },
       {
         "instruction": "点击 Weather",
-        "note": "英文词里含停用词 the",
+        "note": "the English word contains the stop word 'the'",
         "expected": "click:[9]",
         "v1": {
           "kind": "llm"
@@ -888,7 +888,7 @@
       },
       {
         "instruction": "打开 report_final.docx",
-        "note": "OCR 错字 l->1",
+        "note": "OCR error l->1",
         "expected": "click:[13]",
         "v1": {
           "kind": "llm"
@@ -903,7 +903,7 @@
       },
       {
         "instruction": "点击发送按钮",
-        "note": "含输入动词但其实是点击",
+        "note": "contains a typing verb (发送 send) but is a click",
         "expected": "click:[8]",
         "v1": {
           "kind": "rule",
@@ -920,7 +920,7 @@
       },
       {
         "instruction": "发送 你好",
-        "note": "没有位置词的输入指令",
+        "note": "typing instruction without a location word",
         "expected": "type:[7]",
         "v1": {
           "kind": "llm"
@@ -936,7 +936,7 @@
       },
       {
         "instruction": "打开 搜狐",
-        "note": "'搜'开头的词",
+        "note": "word starting with '搜' (search)",
         "expected": "click:[10]",
         "v1": {
           "kind": "rule",
@@ -953,7 +953,7 @@
       },
       {
         "instruction": "搜狐",
-        "note": "'搜'开头的词，没有动词",
+        "note": "word starting with '搜', no verb",
         "expected": "click:[10]",
         "v1": {
           "kind": "rule",
@@ -970,7 +970,7 @@
       },
       {
         "instruction": "点击退出登录",
-        "note": "'退出'在目标名字里",
+        "note": "'退出' (exit) is part of the target name",
         "expected": "click:[12]",
         "v1": {
           "kind": "rule",
@@ -987,7 +987,7 @@
       },
       {
         "instruction": "关闭",
-        "note": "两个同名元素",
+        "note": "two elements with the same name",
         "expected": "click:[5, 6]",
         "v1": {
           "kind": "rule",
@@ -1004,7 +1004,7 @@
       },
       {
         "instruction": "搜索 如何发送邮件",
-        "note": "输入内容里含'发送'",
+        "note": "the text to type contains '发送' (send)",
         "expected": "type:[3]",
         "v1": {
           "kind": "llm"
@@ -1020,7 +1020,7 @@
       },
       {
         "instruction": "点击搜索",
-        "note": "点的是'搜索'按钮",
+        "note": "clicking the '搜索' (Search) button",
         "expected": "click:[11]",
         "v1": {
           "kind": "llm"
@@ -1035,7 +1035,7 @@
       },
       {
         "instruction": "在输入框输入 你好",
-        "note": "有两个输入框，任意一个都可以接受",
+        "note": "two input boxes; either is acceptable",
         "expected": "type:[3, 7]",
         "v1": {
           "kind": "llm"
@@ -1051,7 +1051,7 @@
       },
       {
         "instruction": "type hello in the search box",
-        "note": "英文输入指令",
+        "note": "English typing instruction",
         "expected": "type:[3]",
         "v1": {
           "kind": "llm"
@@ -1067,7 +1067,7 @@
       },
       {
         "instruction": "send hi",
-        "note": "英文发送指令",
+        "note": "English send instruction",
         "expected": "type:[7]",
         "v1": {
           "kind": "llm"
@@ -1083,7 +1083,7 @@
       },
       {
         "instruction": "点击 天气",
-        "note": "对照：规则点击本来就能处理",
+        "note": "control: a plain click the rules already handle",
         "expected": "click:[4]",
         "v1": {
           "kind": "rule",
@@ -1100,7 +1100,7 @@
       },
       {
         "instruction": "打开 Microsoft Edge",
-        "note": "对照：启动应用",
+        "note": "control: launch an app",
         "expected": "click:launch",
         "v1": {
           "kind": "tool_use",

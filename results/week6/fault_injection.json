@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "name": "S01 正常单步点击",
+      "name": "S01 normal single-step click",
       "instruction": "点击 Google Chrome",
       "expect_ok": true,
       "ok": true,
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "name": "S02 两步任务（点击后输入）",
+      "name": "S02 two-step task (click, then type)",
       "instruction": "点击 Google Chrome 然后 搜索 McMaster 选课",
       "expect_ok": true,
       "ok": true,
@@ -52,7 +52,7 @@
       ]
     },
     {
-      "name": "S03 隐含两步“打开X 搜索Y”",
+      "name": "S03 implicit two steps \"open X search Y\"",
       "instruction": "打开 Google Chrome 搜索 天气",
       "expect_ok": true,
       "ok": true,
@@ -81,7 +81,7 @@
       ]
     },
     {
-      "name": "S04 感知前2次抛异常，第3次恢复",
+      "name": "S04 perception raises twice, recovers on the 3rd attempt",
       "instruction": "点击 Google Chrome",
       "expect_ok": true,
       "ok": true,
@@ -103,7 +103,7 @@
       ]
     },
     {
-      "name": "S05 感知一直异常（预期失败：perception_error）",
+      "name": "S05 perception always fails (expected failure: perception_error)",
       "instruction": "点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -127,7 +127,7 @@
       ]
     },
     {
-      "name": "S06 目标文字第1次没识别出来，第2次识别到",
+      "name": "S06 target text missed on the 1st scan, found on the 2nd",
       "instruction": "点击 Google Chrome",
       "expect_ok": true,
       "ok": true,
@@ -149,7 +149,7 @@
       ]
     },
     {
-      "name": "S07 前2次点击失败，第3次成功",
+      "name": "S07 first 2 clicks fail, 3rd succeeds",
       "instruction": "点击 Google Chrome",
       "expect_ok": true,
       "ok": true,
@@ -171,7 +171,7 @@
       ]
     },
     {
-      "name": "S08 两个同名“关闭”，第一个点了没反应 → 换下一个",
+      "name": "S08 two elements named \"Close\"; the first has no effect -> try the next",
       "instruction": "关闭",
       "expect_ok": true,
       "ok": true,
@@ -193,7 +193,7 @@
       ]
     },
     {
-      "name": "S09 坐标越界（预期失败：action_failed）",
+      "name": "S09 coordinates out of bounds (expected failure: action_failed)",
       "instruction": "点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -217,7 +217,7 @@
       ]
     },
     {
-      "name": "S10 规则无候选→大模型先给非法ID再给正确ID",
+      "name": "S10 no rule candidate -> LLM gives an invalid ID, then the right one",
       "instruction": "点击 主页",
       "expect_ok": true,
       "ok": true,
@@ -239,7 +239,7 @@
       ]
     },
     {
-      "name": "S11 大模型超时一次后恢复",
+      "name": "S11 LLM times out once, then recovers",
       "instruction": "点击 主页",
       "expect_ok": true,
       "ok": true,
@@ -261,7 +261,7 @@
       ]
     },
     {
-      "name": "S12 大模型一直抛异常（预期失败：llm_no_output）",
+      "name": "S12 LLM always raises (expected failure: llm_no_output)",
       "instruction": "点击 主页",
       "expect_ok": false,
       "ok": false,
@@ -285,7 +285,7 @@
       ]
     },
     {
-      "name": "S13 没有大模型且规则无候选（预期失败：no_candidate）",
+      "name": "S13 no LLM and no rule candidate (expected failure: no_candidate)",
       "instruction": "点击 主页",
       "expect_ok": false,
       "ok": false,
@@ -309,7 +309,7 @@
       ]
     },
     {
-      "name": "S14 第1步失败 + abort：后续步骤跳过",
+      "name": "S14 step 1 fails + abort: remaining steps skipped",
       "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -340,7 +340,7 @@
       ]
     },
     {
-      "name": "S15 第1步失败 + continue：后续步骤仍执行",
+      "name": "S15 step 1 fails + continue: remaining steps still run",
       "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -371,7 +371,7 @@
       ]
     },
     {
-      "name": "S16 任务时间预算耗尽",
+      "name": "S16 task time budget exhausted",
       "instruction": "点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -395,7 +395,7 @@
       ]
     },
     {
-      "name": "S17 系统 API 启动成功（Tool Use 路径）",
+      "name": "S17 launch via system command succeeds (tool-use path)",
       "instruction": "打开 Chrome",
       "expect_ok": true,
       "ok": true,
@@ -417,7 +417,7 @@
       ]
     },
     {
-      "name": "S18 系统 API 启动失败 → 降级走视觉路径",
+      "name": "S18 launch via system command fails -> fall back to the visual path",
       "instruction": "点击 Google Chrome",
       "expect_ok": true,
       "ok": true,
@@ -439,7 +439,7 @@
       ]
     },
     {
-      "name": "S21 快捷键直接执行（不找目标）",
+      "name": "S21 hotkey runs directly (no target lookup)",
       "instruction": "按 Ctrl+T",
       "expect_ok": true,
       "ok": true,
@@ -461,7 +461,7 @@
       ]
     },
     {
-      "name": "S22 快捷键后画面没变：不重试，只标记未确认",
+      "name": "S22 screen unchanged after a hotkey: no retry, marked unverified",
       "instruction": "按 Ctrl+V",
       "expect_ok": true,
       "ok": true,
@@ -483,7 +483,7 @@
       ]
     },
     {
-      "name": "S23 滚动",
+      "name": "S23 scroll",
       "instruction": "向下滚动 3 次",
       "expect_ok": true,
       "ok": true,
@@ -505,7 +505,7 @@
       ]
     },
     {
-      "name": "S24 输入后屏幕上找不到输入的内容：标记未确认、不重复输入",
+      "name": "S24 typed text not found on screen: marked unverified, not typed again",
       "instruction": "搜索 天气",
       "expect_ok": true,
       "ok": true,
@@ -527,7 +527,7 @@
       ]
     },
     {
-      "name": "S25 步骤失败后重新规划，换一条路完成任务",
+      "name": "S25 re-plan after a failed step and finish the task another way",
       "instruction": "点击 不存在的东西",
       "expect_ok": true,
       "ok": true,
@@ -558,7 +558,7 @@
       ]
     },
     {
-      "name": "S26 重新规划没给出结果：按 abort 处理",
+      "name": "S26 re-planning returns nothing: handled as abort",
       "instruction": "点击 不存在的东西 然后 点击 Google Chrome",
       "expect_ok": false,
       "ok": false,
@@ -589,9 +589,9 @@
       ]
     },
     {
-      "name": "S19 “搜索 chrome 教程”不应被当成启动 Chrome",
+      "name": "S19 \"search chrome tutorial\" must not launch Chrome",
       "instruction": "搜索 chrome 教程",
-      "expect_ok": "不启动应用",
+      "expect_ok": "no app launched",
       "ok": false,
       "final_state": "desktop",
       "expect_state": "desktop",
@@ -605,9 +605,9 @@
       "steps": []
     },
     {
-      "name": "S20 FAILSAFE 紧急停止必须中断任务而不是被重试",
+      "name": "S20 FAILSAFE emergency stop must abort the task, not be retried",
       "instruction": "点击 Google Chrome",
-      "expect_ok": "抛出异常",
+      "expect_ok": "exception raised",
       "ok": false,
       "final_state": "desktop",
       "expect_state": "desktop",

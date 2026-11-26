@@ -1,27 +1,68 @@
 # Desktop GUI Agent
 
-AUthor： Zhenxin Zhang
+[![tests](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml)
 
-A desktop GUI agent for Windows. You tell it what to do in one sentence (Chinese or English). It takes a screenshot, uses OCR to find and number the text on screen, decides where to click and what to type into which input box, drives the mouse and keyboard, and then checks whether the action actually took effect.
+English | [中文](README.zh-CN.md)
 
-This is an 8-week internship project. The weekly reports are in `docs/`; the final report is `docs/final_report.md` (Word version: `docs/final_report.docx`). The reports are written in Chinese.
+**Author:** Zhenxin Zhang
 
-![Architecture](results/final/fig_architecture.png)
+A desktop GUI agent for Windows. You give it an instruction in one sentence (Chinese or English). It takes a screenshot, uses OCR to find and number the text on screen, decides where to click and what to type into which input box, drives the mouse and keyboard, and then checks whether the action actually took effect.
+
+It was built as an 8-week internship project on multimodal-LLM GUI agents. The design choice that runs through it is **rules first, LLM as fallback**: common clicks and typing are matched to on-screen elements by deterministic rules, and only when the rules find no target is a vision-language model (local LLaVA, or a LoRA-fine-tuned Qwen2.5-1.5B) asked to pick an element. The model may only choose from the IDs that are actually on screen.
+
+![Architecture](results/final/fig_architecture_en.png)
+
+## Highlights
+
+- **Two-track decision making.** A rule matcher handles intent detection (click / type / hotkey / scroll / wait), keyword scoring with exact, substring and fuzzy matching, input-box detection and payload extraction. The LLM is called only when the rules have no candidate, and its output is checked against the list of valid IDs.
+- **Failure-aware execution.** The executor classifies failures into 11 types and handles each one differently: wait and rescan, ask the LLM again without the elements it already tried, switch target after repeated failures, or re-plan the remaining steps from the current screen.
+- **Verification.** Each action is checked against a before/after screen signature (64×36 grayscale, cell counting, with regions that change on their own masked out). After typing, the agent rescans the screen to check the text actually appears.
+- **Measured parameters.** The verification threshold, OCR downscaling limit and dynamic-region masking were chosen from experiments, not guessed (`scripts/study_*.py`).
+- **Testable without a screen.** Perception, control, the LLM and app launching can all be replaced by fakes, so 67 unit tests and 26 fault-injection scenarios run on any machine, including CI.
+
+## Results
+
+| What | Result | Notes |
+|---|---|---|
+| Rule routing on the 50 fixed week-4 instructions | rules correct on **49/50** (v1: 26/50, with 24 sent to the LLM) | `python -m tests.run_routing_eval` |
+| 18 adversarial instructions targeting v1's weaknesses | **18/18** (v1: 7/18) | e.g. "search chrome tutorial" must not launch Chrome |
+| Fault-injection scenarios | **26/26** pass | OCR crashes, missed text, failed clicks, LLM timeouts / hallucinated IDs, emergency stop |
+| 20-task simulation (ideal perception) | 19/20 with system launch, 10/20 vision only | an upper bound for the decision logic, **not** real-machine results |
+| Real-machine evaluation (in progress) | 10/18 runs on tasks T01–T06 | found a launcher bug, now fixed (see below) |
+
+The real-machine evaluation has so far covered 6 of the 20 tasks (3 runs each) on a 1920×1080 Windows PC. App launches through system commands (Calculator, Chrome, Edge) succeeded every time in about 2–3 s. It also exposed a real bug: `explorer.exe` returns exit code 1 even when it opens a window, so the executor treated "open File Explorer" as a failed launch and fell back to the visual path. The launcher now starts the command without checking the exit code, and success is judged by the screen-change check instead. The remaining tasks and the vision-only condition still need to be run; raw data is in `results/eval_runs.csv`, and statistics and charts are in `results/week7/`.
+
+The LoRA fine-tuning pipeline (synthetic data with leakage checks, training, a five-configuration evaluation and report generation) is in `training/`. The GPU evaluation results are not included in this repository.
+
+## Example run
+
+Instructions are split into steps, each step logs its route (`tool_use`, `rule`, `llm`, `direct`) and target, and a failed attempt shows its failure reason. Here the first "Close" button has no effect, so the executor blacklists it and tries the next candidate:
+
+```
+task start [b4d0391a] '关闭', 1 step(s)                    # "关闭" = Close
+step 1/1 start: 关闭
+  step 1 attempt 1 FAILED | route=rule target=21 reason=no_screen_change
+  step 1 attempt 2 ok | route=rule target=23
+step 1 done (2 attempt(s))
+task succeeded [b4d0391a] steps 1/1, 2 attempt(s)
+```
+
+More logs from the fault-injection scenarios are in `results/week6/sample_logs/`.
 
 ## How it works
 
 1. **Decompose**: a long instruction such as "open Chrome then search weather then scroll down" is split into single steps.
-2. **System commands**: "open Notepad / Calculator / File Explorer / Chrome / Edge" is first tried with a system command. If that fails, the agent falls back to the visual path.
+2. **System commands**: "open Notepad / Calculator / File Explorer / Chrome / Edge" is first tried with a system command. If the screen does not change, the agent falls back to the visual path.
 3. **Perceive**: take a screenshot, recognize text with EasyOCR (or PaddleOCR), and give every text block an ID together with its center coordinates (Set-of-Mark).
-4. **Decide**: rules come first. Click instructions are scored against on-screen text by keyword; type instructions first look for an input box. Only when the rules find no target are the screenshot and element list passed to a large model (local LLaVA, or the LoRA model fine-tuned in week 5), and the model may only choose from the listed IDs.
+4. **Decide**: rules come first. Click instructions are scored against on-screen text by keyword; type instructions first look for an input box. Only when the rules find no target are the screenshot and element list passed to an LLM, which may only choose from the listed IDs.
 5. **Act**: click, type (non-ASCII text is pasted through the clipboard), press keys, scroll, wait.
-6. **Verify**: compare the screen before and after the action. For type steps, the agent also rescans the screen to check that the typed text actually appears.
-7. **Retry**: failures are handled according to their cause, e.g. try the next candidate, tell the model which elements have already been tried, or wait for the page to finish loading before scanning again. Optionally, the model can re-plan the remaining steps.
+6. **Verify**: compare the screen before and after the action. For type steps, also rescan the screen to check that the typed text appears.
+7. **Retry**: handle each failure according to its cause, e.g. try the next candidate, tell the model which elements were already tried, or wait for the page to load before scanning again. Optionally, the LLM can re-plan the remaining steps.
 
 ## Requirements
 
 - Windows 10 / 11, Python 3.10+ (adaptive downscaling reads the display scale with `GetDpiForSystem`; older systems fall back to estimating it from the screenshot size)
-- No GPU needed to run (rule-only path). LLaVA requires [Ollama](https://ollama.com). LoRA training needs a GPU with 8 GB+ VRAM or Colab.
+- No GPU needed for the rule-only path. LLaVA requires [Ollama](https://ollama.com). LoRA training needs a GPU with 8 GB+ VRAM or Colab.
 - The UI language can be Chinese or English; the evaluation tasks list keywords for both.
 
 ## Installation
@@ -40,7 +81,7 @@ Training dependencies are listed separately in `training/requirements.txt`; see 
 
     python main.py --dry-run          # first run: log only, no mouse or keyboard actions
     python main.py                    # normal run (LLaVA as fallback by default)
-    python main.py --agent none       # rules only, no large model
+    python main.py --agent none       # rules only, no LLM
 
 Then type instructions at the prompt, for example:
 
@@ -53,7 +94,7 @@ Then type instructions at the prompt, for example:
 
 Chinese works the same way, e.g. `打开 Chrome 然后 搜索 天气`.
 
-Type `calibrate` (or `校准`) to recalibrate the regions of the screen that change on their own (videos, animations), and `exit` to quit. Moving the mouse into any corner of the screen triggers an emergency stop.
+Type `calibrate` to recalibrate screen regions that change on their own (videos, animations), and `exit` to quit. Moving the mouse into any corner of the screen triggers an emergency stop.
 
 After each task the agent prints the result of every step: `OK` means success, `OK?` means the action was performed but nothing on screen confirmed it (e.g. the typed text was not found afterwards), and `FAIL` is followed by the failure reason.
 
@@ -61,26 +102,26 @@ After each task the agent prints the result of every step: `OK` means success, `
 
 | Option | Default | Description |
 |---|---|---|
-| `--agent llava\|lora\|none` | llava | Large model used when the rules find no target; `none` disables it |
+| `--agent llava\|lora\|none` | llava | LLM used when the rules find no target; `none` disables it |
 | `--adapter <path>` | outputs/lora_gui | Location of the LoRA adapter for `--agent lora` |
 | `--dry-run` | off | Log only, no mouse or keyboard actions |
 | `--no-launch` | off | Do not launch apps with system commands; force the visual path |
 | `--max-side auto\|0\|<pixels>` | auto | Upper limit of the screenshot's long side before OCR. `auto` derives it from the display scale so that text stays at least 13 px after downscaling; `0` disables downscaling |
 | `--ocr easyocr\|paddle` | easyocr | OCR engine |
 | `--calibrate` | off | At startup, detect screen regions that change on their own and ignore them during verification |
-| `--on-fail abort\|continue\|replan` | abort | When a step finally fails: stop / continue with the remaining steps / let the large model re-plan from the current screen (requires a model) |
+| `--on-fail abort\|continue\|replan` | abort | When a step finally fails: stop / continue with the remaining steps / let the LLM re-plan from the current screen (requires a model) |
 | `--no-text-check` | off | Do not rescan the screen for the typed text after typing |
 | `--no-verify` | off | Do not check whether the screen changed after an action |
 | `--retries N` | 3 | Maximum attempts per step |
 | `--llm-timeout <seconds>` | 60 | Timeout for a single model call |
-| `--llm-plan` | off | Let the large model split long instructions the rules cannot split |
+| `--llm-plan` | off | Let the LLM split long instructions the rules cannot split |
 | `--log-dir` | logs | Log directory |
 
 ## Logs
 
 - Console: INFO level, shows every step in real time.
 - `logs/agent.log`: DEBUG level, rotated at 2 MB, 3 backups kept.
-- `logs/trace.jsonl`: one event per line (task start, step start, each attempt, step end, task end) with per-stage timings, for analysis with scripts afterwards.
+- `logs/trace.jsonl`: one event per line (task start, step start, each attempt, step end, task end) with per-stage timings, for analysis afterwards.
 - `som_test_result.png`: the annotated image from the latest scan (a box and an ID for every text block).
 
 ## Project layout
@@ -88,10 +129,10 @@ After each task the agent prints the result of every step: `OK` means success, `
     main.py                     command-line entry point
     gui_agent/
       perceiver.py              screenshot, DPI awareness, adaptive downscaling, OCR, numbering,
-                                screen fingerprint (with dynamic-region masking)
+                                screen signature (with dynamic-region masking)
       matcher.py                intent detection (click/type/hotkey/scroll/wait), element scoring,
-                                input-box detection, text extraction
-      planner.py                instruction decomposition; model-based splitting and re-planning
+                                input-box detection, payload extraction
+      planner.py                instruction decomposition; LLM-based splitting and re-planning
       executor.py               step execution, verification, cause-based retries, system-command launch
       controller.py             mouse and keyboard (click, type, hotkey, scroll), dry-run controller
       agent.py                  LLaVA (via Ollama)
@@ -123,8 +164,10 @@ After each task the agent prints the result of every step: `OK` means success, `
       run_demo.py               task sequence for recording the demo video
       make_final_figures.py     figures for the final report
       fetch_mind2web.py         sample Mind2Web tasks from Hugging Face
-    docs/                       week 6 and 7 reports, final report, demo storyboard
+    docs/                       week 6 and 7 reports, final report, demo storyboard (in Chinese)
     results/                    experiment data and charts for each week
+
+A note on language: comments, logs and documentation in the code are in English. Chinese text that remains in the source is functional: the keyword lists and regexes the rule matcher uses, the evaluation task instructions (with English translations in comments), simulated UI text, the LLM prompts the models were evaluated with, and the training data templates. The internship reports in `docs/` are in Chinese.
 
 ## Tests
 
@@ -133,6 +176,8 @@ No screen or GPU required:
     python -m unittest discover -s tests -t .       # 67 unit tests
     python -m tests.run_routing_eval                # rule-routing comparison
     python -m tests.run_fault_injection             # 26 fault scenarios + random-fault simulation
+
+All three run on every push through GitHub Actions (`.github/workflows/tests.yml`).
 
 ## Reproducing the experiments
 
@@ -150,11 +195,11 @@ No screen or GPU required:
 
 ## Real-machine evaluation
 
-    python -m evaluation.runner --agent llava --repeat 3 --resolution-label 1920x1080-125%
+    python -m evaluation.runner --agent llava --repeat 3 --resolution-label 1920x1080-150%
     python -m evaluation.runner --agent llava --repeat 3 --no-launch --out results/eval_vision_only.csv
     python -m evaluation.analyze --inputs results/eval_runs.csv results/eval_vision_only.csv --out results/week7
 
-Do not touch the mouse or keyboard while the evaluation is running. The 6 tasks whose automatic check is unreliable pause for manual confirmation (`--manual all` confirms every task, `--manual none` confirms none). If interrupted, rerun the same command and recorded runs are skipped. To compare resolutions, change the display settings and run again with a different `--resolution-label`.
+Do not touch the mouse or keyboard while the evaluation is running. The 6 tasks whose automatic check is unreliable pause for manual confirmation (`--manual all` confirms every task, `--manual none` confirms none). If interrupted, rerun the same command and recorded runs are skipped. Set `--resolution-label` to match your actual display settings; to compare resolutions, change the display settings and run again with a different label.
 
 Before evaluating, it is worth running:
 
@@ -166,7 +211,7 @@ Before evaluating, it is worth running:
     python -m scripts.run_demo --dry-run                # rehearsal
     python -m scripts.run_demo --agent llava            # recording
 
-Runs 7 demo tasks in order, printing a title and a countdown before each and closing the opened apps afterwards. The storyboard and recording tips are in `docs/demo_script.md`. The demo instructions are in Chinese.
+Runs 7 demo tasks in order, printing a title and a countdown before each and closing the opened apps afterwards. The storyboard is in `docs/demo_script.md`.
 
 ## Training (week 5)
 
@@ -189,5 +234,6 @@ Use the trained adapter with `python main.py --agent lora --adapter outputs/lora
 
 - Only text is recognized. Icons, controls without text, and empty input areas (e.g. Notepad's blank editing area) cannot be located.
 - Verification can show that "the screen changed" and "the typed text appeared", but not that a click hit the right target.
-- Re-planning depends on a large model and relies only on the text on screen.
+- Re-planning depends on an LLM and relies only on the text on screen.
 - The threshold, downscaling and masking studies were run on synthetic screens; on a new machine, re-check them with the tools above.
+- The real-machine evaluation is incomplete (18 of 60 planned runs).

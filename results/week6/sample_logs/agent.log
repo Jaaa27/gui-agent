@@ -1,229 +1,229 @@
-2026-11-14 00:47:09,849 | INFO    | ===== S01 正常单步点击 =====
-2026-11-14 00:47:09,850 | INFO    | 任务开始 [4fdb970b] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,850 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,850 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,852 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,852 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:09,852 | INFO    | 任务成功 [4fdb970b] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:09,852 | INFO    | ===== S02 两步任务（点击后输入） =====
-2026-11-14 00:47:09,852 | INFO    | 任务开始 [13063c01] '点击 Google Chrome 然后 搜索 McMaster 选课'，拆成 2 步
-2026-11-14 00:47:09,852 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,852 | DEBUG   |   计划步骤 2: 搜索 McMaster 选课
-2026-11-14 00:47:09,852 | INFO    | 步骤 1/2 开始: 点击 Google Chrome
-2026-11-14 00:47:09,852 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,852 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:09,853 | INFO    | 步骤 2/2 开始: 搜索 McMaster 选课
-2026-11-14 00:47:09,853 | INFO    |   步骤 2 第 1 次尝试 成功 | 路由=rule 目标=20  | 0.00s
-2026-11-14 00:47:09,853 | INFO    | 步骤 2 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:09,853 | INFO    | 任务成功 [13063c01] 步骤 2/2，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:09,853 | INFO    | ===== S03 隐含两步“打开X 搜索Y” =====
-2026-11-14 00:47:09,853 | INFO    | 任务开始 [27c6e063] '打开 Google Chrome 搜索 天气'，拆成 2 步
-2026-11-14 00:47:09,853 | DEBUG   |   计划步骤 1: 打开 Google Chrome
-2026-11-14 00:47:09,853 | DEBUG   |   计划步骤 2: 搜索 天气
-2026-11-14 00:47:09,853 | INFO    | 步骤 1/2 开始: 打开 Google Chrome
-2026-11-14 00:47:09,854 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,854 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:09,854 | INFO    | 步骤 2/2 开始: 搜索 天气
-2026-11-14 00:47:09,854 | WARNING |   输入后没在屏幕上找到 '天气'，标记为未确认
-2026-11-14 00:47:09,854 | INFO    |   步骤 2 第 1 次尝试 成功 | 路由=rule 目标=20  | 0.00s
-2026-11-14 00:47:09,854 | INFO    | 步骤 2 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:09,854 | INFO    | 任务成功 [27c6e063] 步骤 2/2，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:09,854 | INFO    | ===== S04 感知前2次抛异常，第3次恢复 =====
-2026-11-14 00:47:09,854 | INFO    | 任务开始 [4ead07e8] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,854 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,854 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,854 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=- 目标=- 原因=perception_error (RuntimeError('OCR 引擎崩溃(模拟)')) | 0.00s
-2026-11-14 00:47:09,854 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=- 目标=- 原因=perception_error (RuntimeError('OCR 引擎崩溃(模拟)')) | 0.00s
-2026-11-14 00:47:09,855 | INFO    |   步骤 1 第 3 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,855 | INFO    | 步骤 1 完成（尝试 3 次，0.00s）
-2026-11-14 00:47:09,855 | INFO    | 任务成功 [4ead07e8] 步骤 1/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:09,855 | INFO    | ===== S05 感知一直异常（预期失败：perception_error） =====
-2026-11-14 00:47:09,855 | INFO    | 任务开始 [0cff331e] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,855 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,855 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,855 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=- 目标=- 原因=perception_error (RuntimeError('OCR 引擎崩溃(模拟)')) | 0.00s
-2026-11-14 00:47:09,855 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=- 目标=- 原因=perception_error (RuntimeError('OCR 引擎崩溃(模拟)')) | 0.00s
-2026-11-14 00:47:09,855 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=- 目标=- 原因=perception_error (RuntimeError('OCR 引擎崩溃(模拟)')) | 0.00s
-2026-11-14 00:47:09,855 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=perception_error
-2026-11-14 00:47:09,855 | ERROR   | 步骤 1 最终失败，后面 0 步不做了
-2026-11-14 00:47:09,856 | INFO    | 任务失败 [0cff331e] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:09,856 | INFO    | ===== S06 目标文字第1次没识别出来，第2次识别到 =====
-2026-11-14 00:47:09,856 | INFO    | 任务开始 [15092ef3] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,856 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,856 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,856 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:09,857 | INFO    |   步骤 1 第 2 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,857 | INFO    | 步骤 1 完成（尝试 2 次，0.00s）
-2026-11-14 00:47:09,857 | INFO    | 任务成功 [15092ef3] 步骤 1/1，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:09,857 | INFO    | ===== S07 前2次点击失败，第3次成功 =====
-2026-11-14 00:47:09,857 | INFO    | 任务开始 [20b0d31a] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,857 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,857 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,857 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=10 原因=action_failed (坐标(100,100)) | 0.00s
-2026-11-14 00:47:09,857 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=10 原因=action_failed (坐标(100,100)) | 0.00s
-2026-11-14 00:47:09,858 | INFO    | 候选都试过一遍了，清空黑名单再试最优的
-2026-11-14 00:47:09,858 | INFO    |   步骤 1 第 3 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:09,858 | INFO    | 步骤 1 完成（尝试 3 次，0.00s）
-2026-11-14 00:47:09,858 | INFO    | 任务成功 [20b0d31a] 步骤 1/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:09,858 | INFO    | ===== S08 两个同名“关闭”，第一个点了没反应 → 换下一个 =====
-2026-11-14 00:47:09,858 | INFO    | 任务开始 [4f348675] '关闭'，拆成 1 步
-2026-11-14 00:47:09,858 | DEBUG   |   计划步骤 1: 关闭
-2026-11-14 00:47:09,858 | INFO    | 步骤 1/1 开始: 关闭
-2026-11-14 00:47:09,858 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=21 原因=no_screen_change | 0.00s
-2026-11-14 00:47:09,858 | INFO    |   步骤 1 第 2 次尝试 成功 | 路由=rule 目标=23  | 0.00s
-2026-11-14 00:47:09,858 | INFO    | 步骤 1 完成（尝试 2 次，0.00s）
-2026-11-14 00:47:09,858 | INFO    | 任务成功 [4f348675] 步骤 1/1，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:09,859 | INFO    | ===== S09 坐标越界（预期失败：action_failed） =====
-2026-11-14 00:47:09,859 | INFO    | 任务开始 [475d1a4a] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:09,859 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:09,859 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:09,859 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=10 原因=action_failed (坐标(5000,5000)) | 0.00s
-2026-11-14 00:47:09,859 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=10 原因=action_failed (坐标(5000,5000)) | 0.00s
-2026-11-14 00:47:09,859 | INFO    | 候选都试过一遍了，清空黑名单再试最优的
-2026-11-14 00:47:09,859 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=rule 目标=10 原因=action_failed (坐标(5000,5000)) | 0.00s
-2026-11-14 00:47:09,859 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=action_failed
-2026-11-14 00:47:09,859 | ERROR   | 步骤 1 最终失败，后面 0 步不做了
-2026-11-14 00:47:09,859 | INFO    | 任务失败 [475d1a4a] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:09,859 | INFO    | ===== S10 规则无候选→大模型先给非法ID再给正确ID =====
-2026-11-14 00:47:09,859 | INFO    | 任务开始 [1a2f77c1] '点击 主页'，拆成 1 步
-2026-11-14 00:47:09,859 | DEBUG   |   计划步骤 1: 点击 主页
-2026-11-14 00:47:09,859 | INFO    | 步骤 1/1 开始: 点击 主页
-2026-11-14 00:47:09,860 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=llm 目标=9999 原因=llm_invalid (action=click target_id=9999) | 0.00s
-2026-11-14 00:47:09,861 | INFO    |   步骤 1 第 2 次尝试 成功 | 路由=llm 目标=31  | 0.00s
-2026-11-14 00:47:09,861 | INFO    | 步骤 1 完成（尝试 2 次，0.00s）
-2026-11-14 00:47:09,861 | INFO    | 任务成功 [1a2f77c1] 步骤 1/1，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:09,861 | INFO    | ===== S11 大模型超时一次后恢复 =====
-2026-11-14 00:47:09,861 | INFO    | 任务开始 [5ca5cc15] '点击 主页'，拆成 1 步
-2026-11-14 00:47:09,861 | DEBUG   |   计划步骤 1: 点击 主页
-2026-11-14 00:47:09,861 | INFO    | 步骤 1/1 开始: 点击 主页
-2026-11-14 00:47:10,062 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=llm 目标=- 原因=llm_timeout (>0.2s) | 0.20s
-2026-11-14 00:47:10,063 | INFO    |   步骤 1 第 2 次尝试 成功 | 路由=llm 目标=31  | 0.00s
-2026-11-14 00:47:10,063 | INFO    | 步骤 1 完成（尝试 2 次，0.20s）
-2026-11-14 00:47:10,064 | INFO    | 任务成功 [5ca5cc15] 步骤 1/1，共尝试 2 次，耗时 0.20s
-2026-11-14 00:47:10,064 | INFO    | ===== S12 大模型一直抛异常（预期失败：llm_no_output） =====
-2026-11-14 00:47:10,064 | INFO    | 任务开始 [6c06773a] '点击 主页'，拆成 1 步
-2026-11-14 00:47:10,064 | DEBUG   |   计划步骤 1: 点击 主页
-2026-11-14 00:47:10,064 | INFO    | 步骤 1/1 开始: 点击 主页
-2026-11-14 00:47:10,065 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=llm 目标=- 原因=llm_no_output (RuntimeError('ollama 连接失败(模拟)')) | 0.00s
-2026-11-14 00:47:10,065 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=llm 目标=- 原因=llm_no_output (RuntimeError('ollama 连接失败(模拟)')) | 0.00s
-2026-11-14 00:47:10,066 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=llm 目标=- 原因=llm_no_output (RuntimeError('ollama 连接失败(模拟)')) | 0.00s
-2026-11-14 00:47:10,066 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=llm_no_output
-2026-11-14 00:47:10,066 | ERROR   | 步骤 1 最终失败，后面 0 步不做了
-2026-11-14 00:47:10,066 | INFO    | 任务失败 [6c06773a] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:10,066 | INFO    | ===== S13 没有大模型且规则无候选（预期失败：no_candidate） =====
-2026-11-14 00:47:10,066 | INFO    | 任务开始 [ed76d2e3] '点击 主页'，拆成 1 步
-2026-11-14 00:47:10,066 | DEBUG   |   计划步骤 1: 点击 主页
-2026-11-14 00:47:10,066 | INFO    | 步骤 1/1 开始: 点击 主页
-2026-11-14 00:47:10,066 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,067 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,067 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,067 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,067 | ERROR   | 步骤 1 最终失败，后面 0 步不做了
-2026-11-14 00:47:10,067 | INFO    | 任务失败 [ed76d2e3] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:10,067 | INFO    | ===== S14 第1步失败 + abort：后续步骤跳过 =====
-2026-11-14 00:47:10,067 | INFO    | 任务开始 [e88060be] '点击 不存在的东西 然后 点击 Google Chrome'，拆成 2 步
-2026-11-14 00:47:10,067 | DEBUG   |   计划步骤 1: 点击 不存在的东西
-2026-11-14 00:47:10,067 | DEBUG   |   计划步骤 2: 点击 Google Chrome
-2026-11-14 00:47:10,068 | INFO    | 步骤 1/2 开始: 点击 不存在的东西
-2026-11-14 00:47:10,068 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,068 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,069 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,069 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,069 | ERROR   | 步骤 1 最终失败，后面 1 步不做了
-2026-11-14 00:47:10,069 | INFO    | 任务失败 [e88060be] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:10,069 | INFO    | ===== S15 第1步失败 + continue：后续步骤仍执行 =====
-2026-11-14 00:47:10,069 | INFO    | 任务开始 [77faf8fa] '点击 不存在的东西 然后 点击 Google Chrome'，拆成 2 步
-2026-11-14 00:47:10,070 | DEBUG   |   计划步骤 1: 点击 不存在的东西
-2026-11-14 00:47:10,070 | DEBUG   |   计划步骤 2: 点击 Google Chrome
-2026-11-14 00:47:10,070 | INFO    | 步骤 1/2 开始: 点击 不存在的东西
-2026-11-14 00:47:10,070 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,071 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,071 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,071 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,071 | INFO    | 步骤 2/2 开始: 点击 Google Chrome
-2026-11-14 00:47:10,072 | INFO    |   步骤 2 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:10,072 | INFO    | 步骤 2 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,072 | INFO    | 任务失败 [77faf8fa] 步骤 1/2，共尝试 4 次，耗时 0.00s
-2026-11-14 00:47:10,072 | INFO    | ===== S16 任务时间预算耗尽 =====
-2026-11-14 00:47:10,072 | INFO    | 任务开始 [808cee63] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:10,072 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:10,072 | ERROR   | 任务超出时间预算 -1s，剩下的步骤跳过
-2026-11-14 00:47:10,072 | INFO    | 任务失败 [808cee63] 步骤 0/1，共尝试 0 次，耗时 0.00s
-2026-11-14 00:47:10,072 | INFO    | ===== S17 系统 API 启动成功（Tool Use 路径） =====
-2026-11-14 00:47:10,072 | INFO    | 任务开始 [e28a5af2] '打开 Chrome'，拆成 1 步
-2026-11-14 00:47:10,072 | DEBUG   |   计划步骤 1: 打开 Chrome
-2026-11-14 00:47:10,073 | INFO    | 步骤 1/1 开始: 打开 Chrome
-2026-11-14 00:47:10,073 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=tool_use 目标=-  (start chrome) | 0.00s
-2026-11-14 00:47:10,073 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,073 | INFO    | 任务成功 [e28a5af2] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,073 | INFO    | ===== S18 系统 API 启动失败 → 降级走视觉路径 =====
-2026-11-14 00:47:10,073 | INFO    | 任务开始 [0a54d1c4] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:10,073 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:10,073 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
-2026-11-14 00:47:10,073 | WARNING | 启动命令失败: start chrome，改走视觉路径
-2026-11-14 00:47:10,074 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:10,074 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,074 | INFO    | 任务成功 [0a54d1c4] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,074 | INFO    | ===== S21 快捷键直接执行（不找目标） =====
-2026-11-14 00:47:10,074 | INFO    | 任务开始 [30f6f667] '按 Ctrl+T'，拆成 1 步
-2026-11-14 00:47:10,074 | DEBUG   |   计划步骤 1: 按 Ctrl+T
-2026-11-14 00:47:10,074 | INFO    | 步骤 1/1 开始: 按 Ctrl+T
-2026-11-14 00:47:10,075 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=direct 目标=-  (ctrl+t) | 0.00s
-2026-11-14 00:47:10,075 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,075 | INFO    | 任务成功 [30f6f667] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,075 | INFO    | ===== S22 快捷键后画面没变：不重试，只标记未确认 =====
-2026-11-14 00:47:10,076 | INFO    | 任务开始 [81d93ac5] '按 Ctrl+V'，拆成 1 步
-2026-11-14 00:47:10,076 | DEBUG   |   计划步骤 1: 按 Ctrl+V
-2026-11-14 00:47:10,076 | INFO    | 步骤 1/1 开始: 按 Ctrl+V
-2026-11-14 00:47:10,076 | INFO    |   ctrl+v 之后画面没变化，标记为未确认
-2026-11-14 00:47:10,076 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=direct 目标=-  (ctrl+v) | 0.00s
-2026-11-14 00:47:10,076 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,076 | INFO    | 任务成功 [81d93ac5] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,076 | INFO    | ===== S23 滚动 =====
-2026-11-14 00:47:10,076 | INFO    | 任务开始 [7831151b] '向下滚动 3 次'，拆成 1 步
-2026-11-14 00:47:10,076 | DEBUG   |   计划步骤 1: 向下滚动 3 次
-2026-11-14 00:47:10,076 | INFO    | 步骤 1/1 开始: 向下滚动 3 次
-2026-11-14 00:47:10,077 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=direct 目标=-  (down 3) | 0.00s
-2026-11-14 00:47:10,077 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,077 | INFO    | 任务成功 [7831151b] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,077 | INFO    | ===== S24 输入后屏幕上找不到输入的内容：标记未确认、不重复输入 =====
-2026-11-14 00:47:10,077 | INFO    | 任务开始 [28d84c9f] '搜索 天气'，拆成 1 步
-2026-11-14 00:47:10,077 | DEBUG   |   计划步骤 1: 搜索 天气
-2026-11-14 00:47:10,077 | INFO    | 步骤 1/1 开始: 搜索 天气
-2026-11-14 00:47:10,077 | WARNING |   输入后没在屏幕上找到 '天气'，标记为未确认
-2026-11-14 00:47:10,078 | INFO    |   步骤 1 第 1 次尝试 成功 | 路由=rule 目标=20  | 0.00s
-2026-11-14 00:47:10,078 | INFO    | 步骤 1 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,078 | INFO    | 任务成功 [28d84c9f] 步骤 1/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,078 | INFO    | ===== S25 步骤失败后重新规划，换一条路完成任务 =====
-2026-11-14 00:47:10,078 | INFO    | 任务开始 [608fb3ae] '点击 不存在的东西'，拆成 1 步
-2026-11-14 00:47:10,078 | DEBUG   |   计划步骤 1: 点击 不存在的东西
-2026-11-14 00:47:10,078 | INFO    | 步骤 1/1 开始: 点击 不存在的东西
-2026-11-14 00:47:10,079 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,079 | INFO    | 步骤 1 失败（尝试 1 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,079 | INFO    | 步骤 1 失败，重新规划出 1 步: ['点击 Google Chrome']
-2026-11-14 00:47:10,079 | INFO    | 步骤 2/2 开始: 点击 Google Chrome
-2026-11-14 00:47:10,079 | INFO    |   步骤 2 第 1 次尝试 成功 | 路由=rule 目标=10  | 0.00s
-2026-11-14 00:47:10,079 | INFO    | 步骤 2 完成（尝试 1 次，0.00s）
-2026-11-14 00:47:10,079 | INFO    | 任务成功 [608fb3ae] 步骤 1/2，共尝试 2 次，耗时 0.00s
-2026-11-14 00:47:10,080 | INFO    | ===== S26 重新规划没给出结果：按 abort 处理 =====
-2026-11-14 00:47:10,080 | INFO    | 任务开始 [3139e5e4] '点击 不存在的东西 然后 点击 Google Chrome'，拆成 2 步
-2026-11-14 00:47:10,080 | DEBUG   |   计划步骤 1: 点击 不存在的东西
-2026-11-14 00:47:10,080 | DEBUG   |   计划步骤 2: 点击 Google Chrome
-2026-11-14 00:47:10,080 | INFO    | 步骤 1/2 开始: 点击 不存在的东西
-2026-11-14 00:47:10,080 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,080 | INFO    | 步骤 1 失败（尝试 1 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,080 | WARNING | 重新规划的结果不合格，放弃: None
-2026-11-14 00:47:10,081 | ERROR   | 步骤 1 最终失败，后面 1 步不做了
-2026-11-14 00:47:10,081 | INFO    | 任务失败 [3139e5e4] 步骤 0/1，共尝试 1 次，耗时 0.00s
-2026-11-14 00:47:10,081 | INFO    | 任务开始 [d21fdfdb] '搜索 chrome 教程'，拆成 1 步
-2026-11-14 00:47:10,081 | DEBUG   |   计划步骤 1: 搜索 chrome 教程
-2026-11-14 00:47:10,081 | INFO    | 步骤 1/1 开始: 搜索 chrome 教程
-2026-11-14 00:47:10,081 | WARNING |   步骤 1 第 1 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,081 | WARNING |   步骤 1 第 2 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,082 | WARNING |   步骤 1 第 3 次尝试 失败 | 路由=rule 目标=- 原因=no_candidate | 0.00s
-2026-11-14 00:47:10,082 | INFO    | 步骤 1 失败（尝试 3 次，0.00s） 最终原因=no_candidate
-2026-11-14 00:47:10,082 | ERROR   | 步骤 1 最终失败，后面 0 步不做了
-2026-11-14 00:47:10,082 | INFO    | 任务失败 [d21fdfdb] 步骤 0/1，共尝试 3 次，耗时 0.00s
-2026-11-14 00:47:10,082 | INFO    | 任务开始 [cc440628] '点击 Google Chrome'，拆成 1 步
-2026-11-14 00:47:10,082 | DEBUG   |   计划步骤 1: 点击 Google Chrome
-2026-11-14 00:47:10,082 | INFO    | 步骤 1/1 开始: 点击 Google Chrome
+2026-11-25 20:05:05,912 | INFO    | ===== S01 normal single-step click =====
+2026-11-25 20:05:05,912 | INFO    | task start [23e38c81] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,912 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,912 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,914 | INFO    |   step 1 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,915 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:05,915 | INFO    | task succeeded [23e38c81] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:05,915 | INFO    | ===== S02 two-step task (click, then type) =====
+2026-11-25 20:05:05,915 | INFO    | task start [b70ec022] '点击 Google Chrome 然后 搜索 McMaster 选课', 2 step(s)
+2026-11-25 20:05:05,915 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,915 | DEBUG   |   planned step 2: 搜索 McMaster 选课
+2026-11-25 20:05:05,915 | INFO    | step 1/2 start: 点击 Google Chrome
+2026-11-25 20:05:05,915 | INFO    |   step 1 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,915 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:05,916 | INFO    | step 2/2 start: 搜索 McMaster 选课
+2026-11-25 20:05:05,916 | INFO    |   step 2 attempt 1 ok | route=rule target=20  | 0.00s
+2026-11-25 20:05:05,916 | INFO    | step 2 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:05,916 | INFO    | task succeeded [b70ec022] steps 2/2, 2 attempt(s), 0.00s
+2026-11-25 20:05:05,917 | INFO    | ===== S03 implicit two steps "open X search Y" =====
+2026-11-25 20:05:05,917 | INFO    | task start [f3be66c0] '打开 Google Chrome 搜索 天气', 2 step(s)
+2026-11-25 20:05:05,917 | DEBUG   |   planned step 1: 打开 Google Chrome
+2026-11-25 20:05:05,917 | DEBUG   |   planned step 2: 搜索 天气
+2026-11-25 20:05:05,917 | INFO    | step 1/2 start: 打开 Google Chrome
+2026-11-25 20:05:05,917 | INFO    |   step 1 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,917 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:05,917 | INFO    | step 2/2 start: 搜索 天气
+2026-11-25 20:05:05,917 | WARNING |   typed text '天气' not found on screen, marked unverified
+2026-11-25 20:05:05,917 | INFO    |   step 2 attempt 1 ok | route=rule target=20  | 0.00s
+2026-11-25 20:05:05,917 | INFO    | step 2 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:05,917 | INFO    | task succeeded [f3be66c0] steps 2/2, 2 attempt(s), 0.00s
+2026-11-25 20:05:05,918 | INFO    | ===== S04 perception raises twice, recovers on the 3rd attempt =====
+2026-11-25 20:05:05,918 | INFO    | task start [e0b67162] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,918 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,918 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,918 | WARNING |   step 1 attempt 1 FAILED | route=- target=- reason=perception_error (RuntimeError('OCR engine crashed (simulated)')) | 0.00s
+2026-11-25 20:05:05,918 | WARNING |   step 1 attempt 2 FAILED | route=- target=- reason=perception_error (RuntimeError('OCR engine crashed (simulated)')) | 0.00s
+2026-11-25 20:05:05,918 | INFO    |   step 1 attempt 3 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,918 | INFO    | step 1 done (3 attempt(s), 0.00s)
+2026-11-25 20:05:05,918 | INFO    | task succeeded [e0b67162] steps 1/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:05,919 | INFO    | ===== S05 perception always fails (expected failure: perception_error) =====
+2026-11-25 20:05:05,919 | INFO    | task start [c6fea159] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,919 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,919 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,919 | WARNING |   step 1 attempt 1 FAILED | route=- target=- reason=perception_error (RuntimeError('OCR engine crashed (simulated)')) | 0.00s
+2026-11-25 20:05:05,919 | WARNING |   step 1 attempt 2 FAILED | route=- target=- reason=perception_error (RuntimeError('OCR engine crashed (simulated)')) | 0.00s
+2026-11-25 20:05:05,919 | WARNING |   step 1 attempt 3 FAILED | route=- target=- reason=perception_error (RuntimeError('OCR engine crashed (simulated)')) | 0.00s
+2026-11-25 20:05:05,919 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=perception_error
+2026-11-25 20:05:05,919 | ERROR   | step 1 failed; skipping the remaining 0 step(s)
+2026-11-25 20:05:05,919 | INFO    | task FAILED [c6fea159] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:05,919 | INFO    | ===== S06 target text missed on the 1st scan, found on the 2nd =====
+2026-11-25 20:05:05,919 | INFO    | task start [4976b3e9] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,919 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,919 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,920 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:05,920 | INFO    |   step 1 attempt 2 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,920 | INFO    | step 1 done (2 attempt(s), 0.00s)
+2026-11-25 20:05:05,920 | INFO    | task succeeded [4976b3e9] steps 1/1, 2 attempt(s), 0.00s
+2026-11-25 20:05:05,920 | INFO    | ===== S07 first 2 clicks fail, 3rd succeeds =====
+2026-11-25 20:05:05,920 | INFO    | task start [372836c4] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,920 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,920 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,921 | WARNING |   step 1 attempt 1 FAILED | route=rule target=10 reason=action_failed (coords (100,100)) | 0.00s
+2026-11-25 20:05:05,921 | WARNING |   step 1 attempt 2 FAILED | route=rule target=10 reason=action_failed (coords (100,100)) | 0.00s
+2026-11-25 20:05:05,921 | INFO    | every candidate has been tried; clearing the blacklist and retrying the best one
+2026-11-25 20:05:05,921 | INFO    |   step 1 attempt 3 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:05,921 | INFO    | step 1 done (3 attempt(s), 0.00s)
+2026-11-25 20:05:05,921 | INFO    | task succeeded [372836c4] steps 1/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:05,921 | INFO    | ===== S08 two elements named "Close"; the first has no effect -> try the next =====
+2026-11-25 20:05:05,921 | INFO    | task start [b4d0391a] '关闭', 1 step(s)
+2026-11-25 20:05:05,921 | DEBUG   |   planned step 1: 关闭
+2026-11-25 20:05:05,921 | INFO    | step 1/1 start: 关闭
+2026-11-25 20:05:05,922 | WARNING |   step 1 attempt 1 FAILED | route=rule target=21 reason=no_screen_change | 0.00s
+2026-11-25 20:05:05,922 | INFO    |   step 1 attempt 2 ok | route=rule target=23  | 0.00s
+2026-11-25 20:05:05,922 | INFO    | step 1 done (2 attempt(s), 0.00s)
+2026-11-25 20:05:05,922 | INFO    | task succeeded [b4d0391a] steps 1/1, 2 attempt(s), 0.00s
+2026-11-25 20:05:05,922 | INFO    | ===== S09 coordinates out of bounds (expected failure: action_failed) =====
+2026-11-25 20:05:05,922 | INFO    | task start [c5dd9511] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:05,922 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:05,922 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:05,922 | WARNING |   step 1 attempt 1 FAILED | route=rule target=10 reason=action_failed (coords (5000,5000)) | 0.00s
+2026-11-25 20:05:05,923 | WARNING |   step 1 attempt 2 FAILED | route=rule target=10 reason=action_failed (coords (5000,5000)) | 0.00s
+2026-11-25 20:05:05,923 | INFO    | every candidate has been tried; clearing the blacklist and retrying the best one
+2026-11-25 20:05:05,923 | WARNING |   step 1 attempt 3 FAILED | route=rule target=10 reason=action_failed (coords (5000,5000)) | 0.00s
+2026-11-25 20:05:05,923 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=action_failed
+2026-11-25 20:05:05,923 | ERROR   | step 1 failed; skipping the remaining 0 step(s)
+2026-11-25 20:05:05,923 | INFO    | task FAILED [c5dd9511] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:05,923 | INFO    | ===== S10 no rule candidate -> LLM gives an invalid ID, then the right one =====
+2026-11-25 20:05:05,923 | INFO    | task start [724dcefb] '点击 主页', 1 step(s)
+2026-11-25 20:05:05,923 | DEBUG   |   planned step 1: 点击 主页
+2026-11-25 20:05:05,923 | INFO    | step 1/1 start: 点击 主页
+2026-11-25 20:05:05,924 | WARNING |   step 1 attempt 1 FAILED | route=llm target=9999 reason=llm_invalid (action=click target_id=9999) | 0.00s
+2026-11-25 20:05:05,924 | INFO    |   step 1 attempt 2 ok | route=llm target=31  | 0.00s
+2026-11-25 20:05:05,924 | INFO    | step 1 done (2 attempt(s), 0.00s)
+2026-11-25 20:05:05,925 | INFO    | task succeeded [724dcefb] steps 1/1, 2 attempt(s), 0.00s
+2026-11-25 20:05:05,925 | INFO    | ===== S11 LLM times out once, then recovers =====
+2026-11-25 20:05:05,925 | INFO    | task start [f4ffb197] '点击 主页', 1 step(s)
+2026-11-25 20:05:05,925 | DEBUG   |   planned step 1: 点击 主页
+2026-11-25 20:05:05,925 | INFO    | step 1/1 start: 点击 主页
+2026-11-25 20:05:06,126 | WARNING |   step 1 attempt 1 FAILED | route=llm target=- reason=llm_timeout (>0.2s) | 0.20s
+2026-11-25 20:05:06,127 | INFO    |   step 1 attempt 2 ok | route=llm target=31  | 0.00s
+2026-11-25 20:05:06,127 | INFO    | step 1 done (2 attempt(s), 0.20s)
+2026-11-25 20:05:06,127 | INFO    | task succeeded [f4ffb197] steps 1/1, 2 attempt(s), 0.20s
+2026-11-25 20:05:06,127 | INFO    | ===== S12 LLM always raises (expected failure: llm_no_output) =====
+2026-11-25 20:05:06,127 | INFO    | task start [83e75d46] '点击 主页', 1 step(s)
+2026-11-25 20:05:06,127 | DEBUG   |   planned step 1: 点击 主页
+2026-11-25 20:05:06,128 | INFO    | step 1/1 start: 点击 主页
+2026-11-25 20:05:06,128 | WARNING |   step 1 attempt 1 FAILED | route=llm target=- reason=llm_no_output (RuntimeError('ollama connection failed (simulated)')) | 0.00s
+2026-11-25 20:05:06,128 | WARNING |   step 1 attempt 2 FAILED | route=llm target=- reason=llm_no_output (RuntimeError('ollama connection failed (simulated)')) | 0.00s
+2026-11-25 20:05:06,129 | WARNING |   step 1 attempt 3 FAILED | route=llm target=- reason=llm_no_output (RuntimeError('ollama connection failed (simulated)')) | 0.00s
+2026-11-25 20:05:06,129 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=llm_no_output
+2026-11-25 20:05:06,129 | ERROR   | step 1 failed; skipping the remaining 0 step(s)
+2026-11-25 20:05:06,129 | INFO    | task FAILED [83e75d46] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:06,129 | INFO    | ===== S13 no LLM and no rule candidate (expected failure: no_candidate) =====
+2026-11-25 20:05:06,129 | INFO    | task start [a7031454] '点击 主页', 1 step(s)
+2026-11-25 20:05:06,129 | DEBUG   |   planned step 1: 点击 主页
+2026-11-25 20:05:06,129 | INFO    | step 1/1 start: 点击 主页
+2026-11-25 20:05:06,129 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,129 | WARNING |   step 1 attempt 2 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,129 | WARNING |   step 1 attempt 3 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,129 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,129 | ERROR   | step 1 failed; skipping the remaining 0 step(s)
+2026-11-25 20:05:06,129 | INFO    | task FAILED [a7031454] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:06,129 | INFO    | ===== S14 step 1 fails + abort: remaining steps skipped =====
+2026-11-25 20:05:06,130 | INFO    | task start [d705be31] '点击 不存在的东西 然后 点击 Google Chrome', 2 step(s)
+2026-11-25 20:05:06,130 | DEBUG   |   planned step 1: 点击 不存在的东西
+2026-11-25 20:05:06,130 | DEBUG   |   planned step 2: 点击 Google Chrome
+2026-11-25 20:05:06,130 | INFO    | step 1/2 start: 点击 不存在的东西
+2026-11-25 20:05:06,130 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,130 | WARNING |   step 1 attempt 2 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,130 | WARNING |   step 1 attempt 3 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,130 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,130 | ERROR   | step 1 failed; skipping the remaining 1 step(s)
+2026-11-25 20:05:06,130 | INFO    | task FAILED [d705be31] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:06,131 | INFO    | ===== S15 step 1 fails + continue: remaining steps still run =====
+2026-11-25 20:05:06,131 | INFO    | task start [ad4da37d] '点击 不存在的东西 然后 点击 Google Chrome', 2 step(s)
+2026-11-25 20:05:06,131 | DEBUG   |   planned step 1: 点击 不存在的东西
+2026-11-25 20:05:06,131 | DEBUG   |   planned step 2: 点击 Google Chrome
+2026-11-25 20:05:06,131 | INFO    | step 1/2 start: 点击 不存在的东西
+2026-11-25 20:05:06,131 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,131 | WARNING |   step 1 attempt 2 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,131 | WARNING |   step 1 attempt 3 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,131 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,131 | INFO    | step 2/2 start: 点击 Google Chrome
+2026-11-25 20:05:06,132 | INFO    |   step 2 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:06,132 | INFO    | step 2 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,132 | INFO    | task FAILED [ad4da37d] steps 1/2, 4 attempt(s), 0.00s
+2026-11-25 20:05:06,132 | INFO    | ===== S16 task time budget exhausted =====
+2026-11-25 20:05:06,132 | INFO    | task start [9da50cfe] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:06,132 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:06,132 | ERROR   | task exceeded its -1s time budget; skipping the remaining steps
+2026-11-25 20:05:06,132 | INFO    | task FAILED [9da50cfe] steps 0/1, 0 attempt(s), 0.00s
+2026-11-25 20:05:06,132 | INFO    | ===== S17 launch via system command succeeds (tool-use path) =====
+2026-11-25 20:05:06,132 | INFO    | task start [77ba5a0f] '打开 Chrome', 1 step(s)
+2026-11-25 20:05:06,132 | DEBUG   |   planned step 1: 打开 Chrome
+2026-11-25 20:05:06,132 | INFO    | step 1/1 start: 打开 Chrome
+2026-11-25 20:05:06,132 | INFO    |   step 1 attempt 1 ok | route=tool_use target=-  (start chrome) | 0.00s
+2026-11-25 20:05:06,132 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,132 | INFO    | task succeeded [77ba5a0f] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,132 | INFO    | ===== S18 launch via system command fails -> fall back to the visual path =====
+2026-11-25 20:05:06,132 | INFO    | task start [684adac6] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:06,132 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:06,132 | INFO    | step 1/1 start: 点击 Google Chrome
+2026-11-25 20:05:06,132 | WARNING | launch command 'start chrome' failed; using the visual path
+2026-11-25 20:05:06,133 | INFO    |   step 1 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:06,133 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,133 | INFO    | task succeeded [684adac6] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,133 | INFO    | ===== S21 hotkey runs directly (no target lookup) =====
+2026-11-25 20:05:06,133 | INFO    | task start [508c83d6] '按 Ctrl+T', 1 step(s)
+2026-11-25 20:05:06,133 | DEBUG   |   planned step 1: 按 Ctrl+T
+2026-11-25 20:05:06,133 | INFO    | step 1/1 start: 按 Ctrl+T
+2026-11-25 20:05:06,133 | INFO    |   step 1 attempt 1 ok | route=direct target=-  (ctrl+t) | 0.00s
+2026-11-25 20:05:06,133 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,133 | INFO    | task succeeded [508c83d6] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,133 | INFO    | ===== S22 screen unchanged after a hotkey: no retry, marked unverified =====
+2026-11-25 20:05:06,134 | INFO    | task start [7028b380] '按 Ctrl+V', 1 step(s)
+2026-11-25 20:05:06,134 | DEBUG   |   planned step 1: 按 Ctrl+V
+2026-11-25 20:05:06,134 | INFO    | step 1/1 start: 按 Ctrl+V
+2026-11-25 20:05:06,134 | INFO    |   screen unchanged after ctrl+v, marked unverified
+2026-11-25 20:05:06,134 | INFO    |   step 1 attempt 1 ok | route=direct target=-  (ctrl+v) | 0.00s
+2026-11-25 20:05:06,134 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,134 | INFO    | task succeeded [7028b380] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,134 | INFO    | ===== S23 scroll =====
+2026-11-25 20:05:06,134 | INFO    | task start [0591698f] '向下滚动 3 次', 1 step(s)
+2026-11-25 20:05:06,134 | DEBUG   |   planned step 1: 向下滚动 3 次
+2026-11-25 20:05:06,134 | INFO    | step 1/1 start: 向下滚动 3 次
+2026-11-25 20:05:06,134 | INFO    |   step 1 attempt 1 ok | route=direct target=-  (down 3) | 0.00s
+2026-11-25 20:05:06,134 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,134 | INFO    | task succeeded [0591698f] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,134 | INFO    | ===== S24 typed text not found on screen: marked unverified, not typed again =====
+2026-11-25 20:05:06,134 | INFO    | task start [7647f243] '搜索 天气', 1 step(s)
+2026-11-25 20:05:06,134 | DEBUG   |   planned step 1: 搜索 天气
+2026-11-25 20:05:06,134 | INFO    | step 1/1 start: 搜索 天气
+2026-11-25 20:05:06,135 | WARNING |   typed text '天气' not found on screen, marked unverified
+2026-11-25 20:05:06,135 | INFO    |   step 1 attempt 1 ok | route=rule target=20  | 0.00s
+2026-11-25 20:05:06,135 | INFO    | step 1 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,135 | INFO    | task succeeded [7647f243] steps 1/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,135 | INFO    | ===== S25 re-plan after a failed step and finish the task another way =====
+2026-11-25 20:05:06,135 | INFO    | task start [8486b27e] '点击 不存在的东西', 1 step(s)
+2026-11-25 20:05:06,135 | DEBUG   |   planned step 1: 点击 不存在的东西
+2026-11-25 20:05:06,135 | INFO    | step 1/1 start: 点击 不存在的东西
+2026-11-25 20:05:06,135 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,135 | INFO    | step 1 FAILED (1 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,135 | INFO    | step 1 failed; re-planned 1 new steps: ['点击 Google Chrome']
+2026-11-25 20:05:06,135 | INFO    | step 2/2 start: 点击 Google Chrome
+2026-11-25 20:05:06,135 | INFO    |   step 2 attempt 1 ok | route=rule target=10  | 0.00s
+2026-11-25 20:05:06,135 | INFO    | step 2 done (1 attempt(s), 0.00s)
+2026-11-25 20:05:06,135 | INFO    | task succeeded [8486b27e] steps 1/2, 2 attempt(s), 0.00s
+2026-11-25 20:05:06,136 | INFO    | ===== S26 re-planning returns nothing: handled as abort =====
+2026-11-25 20:05:06,136 | INFO    | task start [17d81fcf] '点击 不存在的东西 然后 点击 Google Chrome', 2 step(s)
+2026-11-25 20:05:06,136 | DEBUG   |   planned step 1: 点击 不存在的东西
+2026-11-25 20:05:06,136 | DEBUG   |   planned step 2: 点击 Google Chrome
+2026-11-25 20:05:06,136 | INFO    | step 1/2 start: 点击 不存在的东西
+2026-11-25 20:05:06,136 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,136 | INFO    | step 1 FAILED (1 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,136 | WARNING | re-planning returned an invalid result, ignoring it: None
+2026-11-25 20:05:06,136 | ERROR   | step 1 failed; skipping the remaining 1 step(s)
+2026-11-25 20:05:06,136 | INFO    | task FAILED [17d81fcf] steps 0/1, 1 attempt(s), 0.00s
+2026-11-25 20:05:06,136 | INFO    | task start [b4aa3f8f] '搜索 chrome 教程', 1 step(s)
+2026-11-25 20:05:06,136 | DEBUG   |   planned step 1: 搜索 chrome 教程
+2026-11-25 20:05:06,136 | INFO    | step 1/1 start: 搜索 chrome 教程
+2026-11-25 20:05:06,136 | WARNING |   step 1 attempt 1 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,136 | WARNING |   step 1 attempt 2 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,136 | WARNING |   step 1 attempt 3 FAILED | route=rule target=- reason=no_candidate | 0.00s
+2026-11-25 20:05:06,137 | INFO    | step 1 FAILED (3 attempt(s), 0.00s) final reason=no_candidate
+2026-11-25 20:05:06,137 | ERROR   | step 1 failed; skipping the remaining 0 step(s)
+2026-11-25 20:05:06,137 | INFO    | task FAILED [b4aa3f8f] steps 0/1, 3 attempt(s), 0.00s
+2026-11-25 20:05:06,137 | INFO    | task start [5140e8a1] '点击 Google Chrome', 1 step(s)
+2026-11-25 20:05:06,137 | DEBUG   |   planned step 1: 点击 Google Chrome
+2026-11-25 20:05:06,137 | INFO    | step 1/1 start: 点击 Google Chrome

@@ -1,14 +1,15 @@
-"""降采样(max_side)的代价到底多大：算一遍、再在合成屏幕上用 tesseract 实测一遍。
+"""How much does downscaling (max_side) cost? Computed once, then measured with tesseract on synthetic screens.
 
     python -m scripts.study_downscale
 
-1. 算出来的：缩放比例、像素数比例（检测网络是全卷积，耗时大致跟像素数成正比）、
-   文字缩小之后的字号。
-2. 量出来的：把 1920x1080 / 2560x1440 / 3840x2160 的合成屏幕（Noto Sans CJK 渲染的中英文界面词）
-   按 max_side 缩小后交给 tesseract，数召回率、坐标放回原图后的误差、缩放本身的耗时。
+1. Computed: scale factor, pixel ratio (the detector is fully convolutional, so time is roughly proportional
+   to pixels), and the text size after downscaling.
+2. Measured: synthetic 1920x1080 / 2560x1440 / 3840x2160 screens (Chinese and English UI words rendered with
+   Noto Sans CJK) are downscaled to max_side and given to tesseract; we count recall, the coordinate error after
+   mapping back to the original image, and the time of the resize itself.
 
-注意 tesseract 不是 EasyOCR：召回率的绝对值不能直接搬到 EasyOCR 上，能参考的是
-"字号缩到多小开始漏识"这条趋势。EasyOCR 在真机上的数字用 scripts.bench_perception 测。
+Note that tesseract is not EasyOCR: absolute recall numbers do not carry over. What carries over is the trend
+"below which text size does recognition start to miss". Use scripts.bench_perception for EasyOCR on a real machine.
 """
 import csv
 import io
@@ -32,12 +33,12 @@ MAX_SIDES = [0, 1600, 1280, 1024]
 
 
 def render(w, h, font_px, seed=0):
-    """在浅灰底上按网格摆文字，返回图像和 [(文字, (x1,y1,x2,y2)), ...]。"""
+    """Lay out words in a grid on a light grey background. Returns the image and [(text, (x1,y1,x2,y2)), ...]."""
     rng = random.Random(seed)
     img = Image.new("RGB", (w, h), (243, 243, 243))
     dr = ImageDraw.Draw(img)
     f = ImageFont.truetype(FONT, font_px, index=0)
-    cw, ch = int(font_px * 11), int(font_px * 2.6)           # 格子宽高跟字号成比例
+    cw, ch = int(font_px * 11), int(font_px * 2.6)           # cell size proportional to the font size
     boxes = []
     for gy in range(int(ch * 0.5), h - ch, ch):
         for gx in range(int(cw * 0.2), w - cw, cw):
@@ -48,7 +49,7 @@ def render(w, h, font_px, seed=0):
 
 
 def ocr(img):
-    """tesseract 中英文，返回 [(文字, 中心x, 中心y)]（按行内的词/字符块）。"""
+    """tesseract (Chinese + English). Returns [(text, centre x, centre y)] per word/character block."""
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, "s.png")
         cv2.imwrite(p, img)
@@ -68,8 +69,8 @@ def norm(s):
 
 
 def score(boxes, found, scale):
-    """一个目标算命中：落在它框内（放大一圈）的识别结果拼起来包含目标文字。
-    同时返回命中目标的中心误差（原图像素）。"""
+    """A target counts as found if the recognized text inside its (slightly enlarged) box contains the target text.
+    Also returns the centre error of found targets, in original-image pixels."""
     hit, errs = 0, []
     for t, (x1, y1, x2, y2) in boxes:
         pad = 4
@@ -95,7 +96,7 @@ def downscale(img, max_side):
     return cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA), s
 
 
-# 每种分辨率下取两种界面字号：100% 缩放下的常见字号，和系统放大后的字号（物理像素）
+# For each resolution, two UI text sizes: the usual size at 100% scaling, and the size after system scaling (physical px)
 CASES = [((1920, 1080), 12), ((1920, 1080), 16),
          ((2560, 1440), 12), ((2560, 1440), 18),
          ((3840, 2160), 12), ((3840, 2160), 18), ((3840, 2160), 24)]
@@ -120,9 +121,9 @@ def main():
                          "center_err_max": round(float(np.max(errs)), 2) if errs else None,
                          "resize_ms": round(1000 * t_resize, 1), "ocr_s": round(t_ocr, 2)})
             r = rows[-1]
-            print(f"{r['res']:>9} 字号{fpx:>3}px max_side={ms:>4} 比例{r['scale']:.3f} 缩后字号{r['font_after_px']:>5} "
-                  f"召回{r['recall']:>5}% 中心误差均值{r['center_err_mean']} 最大{r['center_err_max']} "
-                  f"缩放{r['resize_ms']}ms tesseract {r['ocr_s']}s", flush=True)
+            print(f"{r['res']:>9} font {fpx:>3}px max_side={ms:>4} scale {r['scale']:.3f} font after {r['font_after_px']:>5} "
+                  f"recall {r['recall']:>5}% centre err mean {r['center_err_mean']} max {r['center_err_max']} "
+                  f"resize {r['resize_ms']}ms tesseract {r['ocr_s']}s", flush=True)
     out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "week6",
                        "downscale_cost.json")
     json.dump(rows, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

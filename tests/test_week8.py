@@ -1,5 +1,5 @@
-"""第 8 周新增功能的测试：按键/滚动/等待、输入复查、重新规划、动态区域屏蔽、
-自动降采样、PaddleOCR 输出转换，以及扩展任务的仿真。"""
+"""Tests for the week-8 features: hotkey/scroll/wait, the post-typing check, re-planning, dynamic-region masking,
+automatic downscaling, PaddleOCR output conversion, and the simulation of the extended tasks."""
 import logging
 import os
 import sys
@@ -66,17 +66,17 @@ class TestParseDirect(unittest.TestCase):
 
     def test_text_visible(self):
         self.assertTrue(text_visible("McMaster 选课", ["McMaster 选课 - 搜索结果"]))
-        self.assertTrue(text_visible("Python 教程", ["Pyth0n 教程 - 搜索"]))      # OCR 错一个字
+        self.assertTrue(text_visible("Python 教程", ["Pyth0n 教程 - 搜索"]))      # one OCR error
         self.assertFalse(text_visible("你好", ["无标题 - 记事本", "文件"]))
 
 
 class TestController(unittest.TestCase):
-    # 先跑的测试文件可能已经装过一份假 pyautogui，以 controller 实际 import 到的那份为准
+    # An earlier test file may have installed its own fake pyautogui; use the one controller actually imported
     def setUp(self):
         self.pg = controller_mod.pyautogui
         self.pg.calls.clear()
         pg = self.pg
-        pg.moveTo = lambda *a, **k: pg.calls.append(("moveTo", a, k))   # 别的测试可能把它换成了抛异常的版本
+        pg.moveTo = lambda *a, **k: pg.calls.append(("moveTo", a, k))   # another test may have replaced it with a raising version
 
     def test_hotkey_and_press(self):
         c = DesktopController(move_duration=0)
@@ -90,7 +90,7 @@ class TestController(unittest.TestCase):
         c = DesktopController(move_duration=0, wheel_unit=120)
         self.assertTrue(c.scroll(-3, 960, 540))
         self.assertEqual(self.pg.calls[-1], ("scroll", (-360,), {}))
-        self.assertFalse(c.scroll(-3, 5000, 5000))           # 越界不动
+        self.assertFalse(c.scroll(-3, 5000, 5000))           # out of bounds: no move
 
 
 class TestDirectActions(unittest.TestCase):
@@ -108,7 +108,7 @@ class TestDirectActions(unittest.TestCase):
         ctrl = KeyController(w)
         r = make(w, ctrl).run("按 Ctrl+V")
         self.assertTrue(r.ok)
-        self.assertEqual(r.steps[0].attempts, 1)          # 重试会粘贴两次
+        self.assertEqual(r.steps[0].attempts, 1)          # a retry would paste twice
         self.assertEqual(ctrl.pressed, ["ctrl+v"])
         self.assertTrue(r.steps[0].unverified)
         self.assertEqual(r.summary["unverified_steps"], 1)
@@ -150,13 +150,13 @@ class TestTextCheck(unittest.TestCase):
         self.assertFalse(r.steps[0].unverified)
 
     def test_payload_missing_marks_unverified(self):
-        # 假屏幕的结果页上只有"McMaster 选课 - 搜索结果"，搜"天气"跳过去以后找不到"天气"
+        # The fake results page only shows "McMaster 选课 - 搜索结果", so after searching "天气" (weather) that word is not on screen
         w = World("chrome")
         r = make(w).run("搜索 天气")
         self.assertTrue(r.ok)
         self.assertTrue(r.steps[0].unverified)
         self.assertEqual(r.steps[0].attempts, 1)
-        self.assertEqual(w.typed, ["天气"])                # 没有重复输入
+        self.assertEqual(w.typed, ["天气"])                # not typed twice
 
     def test_can_turn_off(self):
         w = World("chrome")
@@ -209,7 +209,7 @@ class TestPerceiverWeek8(unittest.TestCase):
         vids = []
         for _ in range(10):
             f = base.copy()
-            f[40:120, 400:560] = rng.integers(0, 256, (1, 1, 3), dtype=np.uint8)   # 整块变色的"视频"
+            f[40:120, 400:560] = rng.integers(0, 256, (1, 1, 3), dtype=np.uint8)   # a "video" that changes colour as a block
             vids.append(f)
         p = ScreenPerceiver(reader=object(), capture_fn=self.frames(vids))
         sa, sb = p.signature_of(vids[0]), p.signature_of(vids[1])
@@ -218,21 +218,21 @@ class TestPerceiverWeek8(unittest.TestCase):
         self.assertGreater(n, 0)
         self.assertFalse(p.signature_changed(sa, p.signature_of(vids[9])))
         popup = vids[9].copy()
-        popup[200:300, 50:150] = 0                               # 视频区外面弹出一个窗口
+        popup[200:300, 50:150] = 0                               # a window pops up outside the video region
         self.assertTrue(p.signature_changed(sa, p.signature_of(popup)))
 
     def test_ignore_regions(self):
         p = ScreenPerceiver(reader=object(), ignore_regions=[(0.9, 0.9, 1.0, 1.0)])
         a = np.zeros((360, 640, 3), np.uint8)
         b = a.copy()
-        b[330:360, 580:640] = 255                                # 右下角时钟
+        b[330:360, 580:640] = 255                                # clock in the bottom-right corner
         self.assertFalse(p.signature_changed(p.signature_of(a), p.signature_of(b)))
 
     def test_auto_max_side(self):
         p = ScreenPerceiver(reader=object(), ui_scale=1.0)
-        self.assertEqual(p.auto_max_side((1080, 1920, 3)), 0)       # 100% 缩放不缩
+        self.assertEqual(p.auto_max_side((1080, 1920, 3)), 0)       # no downscaling at 100%
         p = ScreenPerceiver(reader=object(), ui_scale=1.5)
-        self.assertEqual(p.auto_max_side((2160, 3840, 3)), 2774)    # 18px 字缩到 13px
+        self.assertEqual(p.auto_max_side((2160, 3840, 3)), 2774)    # 18 px text shrinks to 13 px
         p = ScreenPerceiver(reader=object(), ui_scale=1.25)
         self.assertEqual(p.auto_max_side((1080, 1920, 3)), 1664)
 

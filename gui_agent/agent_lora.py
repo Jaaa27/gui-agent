@@ -1,6 +1,6 @@
-"""第 5 周微调出来的 LoRA 版"大脑"，接口和 GUIAgent 一样，main.py 里用 --agent lora 切换。
+"""The week-5 LoRA fine-tuned "brain". Same interface as GUIAgent; select it with `main.py --agent lora`.
 
-微调的是纯文本模型，不看截图，image_path 只是为了接口一致才留着。
+The fine-tuned model is text-only and never sees the screenshot; image_path is kept only for interface compatibility.
 """
 import logging
 
@@ -42,11 +42,11 @@ class GUIAgentLoRA:
                 out = self.model.generate(**enc, max_new_tokens=self.max_new_tokens, do_sample=False,
                                           pad_token_id=self.tok.pad_token_id or self.tok.eos_token_id)
             raw = self.tok.decode(out[0][enc["input_ids"].shape[1]:], skip_special_tokens=True)
-            log.debug("lora 原始输出: %s", raw)
+            log.debug("lora raw output: %s", raw)
             decision = parse_decision(raw)
             if decision is None:
-                log.warning("模型输出解析不出 JSON")
+                log.warning("could not parse JSON from the model output")
             return decision
         except Exception as e:
-            log.warning("推理或解析失败: %s", e)
+            log.warning("inference or parsing failed: %s", e)
             return None

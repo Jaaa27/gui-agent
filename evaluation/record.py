@@ -1,4 +1,4 @@
-"""评估记录的字段定义，以及真机评估和仿真共用的几个小函数。"""
+"""Fields of an evaluation record, and small helpers shared by the real-machine evaluation and the simulation."""
 import time
 
 COLUMNS = ["run_id", "timestamp", "condition", "resolution", "dpi_scale", "task_id", "level", "category",
@@ -8,13 +8,13 @@ COLUMNS = ["run_id", "timestamp", "condition", "resolution", "dpi_scale", "task_
 
 
 def check_expect(texts, expect):
-    """texts 是最后一屏识别出的文字列表。expect 是 [[词, 词], ...]，组内任意、组间全部。"""
+    """texts: the OCR texts of the final screen. expect: [[word, word], ...] - any word within a group, every group."""
     blob = "\n".join(str(t) for t in texts).lower()
     return all(any(w.lower() in blob for w in group) for group in expect)
 
 
 def make_row(task, result, *, condition, resolution, dpi_scale, repeat, auto_ok, manual_ok, wall_s, run_id):
-    """把一次任务执行的结果压成一行记录。"""
+    """Flatten the result of one task run into one record."""
     s = result.summary
     stage = s.get("stage_s", {})
     first_fail = next((r.reason for r in result.steps if not r.ok and r.reason), "")

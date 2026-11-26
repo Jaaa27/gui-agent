@@ -1,4 +1,7 @@
-"""故障注入：假屏幕状态机 + 可控故障，检验 executor 的检测/重试/降级行为。"""
+"""Fault injection: a fake screen state machine + controllable faults, to test the executor's detection / retry / fallback behaviour.
+
+Instructions are Chinese (点击 click, 打开 open, 搜索 search, 关闭 close, 主页 Home, 不存在的东西 "something that doesn't exist").
+"""
 import json, logging, os, random, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
@@ -36,90 +39,90 @@ def scenarios():
         S.append(dict(name=name, instruction=instruction, expect_ok=expect_ok, expect_state=expect_state,
                       build=build, check=check))
 
-    add("S01 正常单步点击", "点击 Google Chrome", True, "chrome", lambda: (lambda w: (w, mk(w)))(World()))
-    add("S02 两步任务（点击后输入）", "点击 Google Chrome 然后 搜索 McMaster 选课", True, "results",
+    add("S01 normal single-step click", "点击 Google Chrome", True, "chrome", lambda: (lambda w: (w, mk(w)))(World()))
+    add("S02 two-step task (click, then type)", "点击 Google Chrome 然后 搜索 McMaster 选课", True, "results",
         lambda: (lambda w: (w, mk(w)))(World()))
-    add("S03 隐含两步“打开X 搜索Y”", "打开 Google Chrome 搜索 天气", True, "results",
+    add("S03 implicit two steps \"open X search Y\"", "打开 Google Chrome 搜索 天气", True, "results",
         lambda: (lambda w: (w, mk(w)))(World()))
-    add("S04 感知前2次抛异常，第3次恢复", "点击 Google Chrome", True, "chrome",
+    add("S04 perception raises twice, recovers on the 3rd attempt", "点击 Google Chrome", True, "chrome",
         lambda: (lambda w: (w, mk(w, perc=FakePerceiver(w, exc_first_n=2))))(World()))
-    add("S05 感知一直异常（预期失败：perception_error）", "点击 Google Chrome", False, "desktop",
+    add("S05 perception always fails (expected failure: perception_error)", "点击 Google Chrome", False, "desktop",
         lambda: (lambda w: (w, mk(w, perc=FakePerceiver(w, exc_first_n=99))))(World()),
         lambda r: r.steps[0].reason == "perception_error")
-    add("S06 目标文字第1次没识别出来，第2次识别到", "点击 Google Chrome", True, "chrome",
+    add("S06 target text missed on the 1st scan, found on the 2nd", "点击 Google Chrome", True, "chrome",
         lambda: (lambda w: (w, mk(w, perc=FakePerceiver(w, miss_texts={"Google Chrome"}, miss_first_n=1))))(World()))
-    add("S07 前2次点击失败，第3次成功", "点击 Google Chrome", True, "chrome",
+    add("S07 first 2 clicks fail, 3rd succeeds", "点击 Google Chrome", True, "chrome",
         lambda: (lambda w: (w, mk(w, ctrl=FakeController(w, fail_first_n=2))))(World()))
-    add("S08 两个同名“关闭”，第一个点了没反应 → 换下一个", "关闭", True, "desktop",
+    add("S08 two elements named \"Close\"; the first has no effect -> try the next", "关闭", True, "desktop",
         lambda: (lambda w: (w, mk(w, ctrl=FakeController(w, noeffect_ids={21}))))(World("chrome_dup")),
         lambda r: r.steps[0].attempts == 2)
-    add("S09 坐标越界（预期失败：action_failed）", "点击 Google Chrome", False, "oob",
+    add("S09 coordinates out of bounds (expected failure: action_failed)", "点击 Google Chrome", False, "oob",
         lambda: (lambda w: (w, mk(w)))(World("oob")),
         lambda r: r.steps[0].reason == "action_failed")
-    add("S10 规则无候选→大模型先给非法ID再给正确ID", "点击 主页", True, "desktop",
+    add("S10 no rule candidate -> LLM gives an invalid ID, then the right one", "点击 主页", True, "desktop",
         lambda: (lambda w: (w, mk(w, agent=FakeAgent(["bad_id", "good"], oracle))))(World("results")))
-    add("S11 大模型超时一次后恢复", "点击 主页", True, "desktop",
+    add("S11 LLM times out once, then recovers", "点击 主页", True, "desktop",
         lambda: (lambda w: (w, mk(w, agent=FakeAgent(["timeout", "good"], oracle, timeout_sleep=0.6), llm_timeout=0.2)))(World("results")))
-    add("S12 大模型一直抛异常（预期失败：llm_no_output）", "点击 主页", False, "results",
+    add("S12 LLM always raises (expected failure: llm_no_output)", "点击 主页", False, "results",
         lambda: (lambda w: (w, mk(w, agent=FakeAgent(["raise"] * 9, oracle))))(World("results")),
         lambda r: r.steps[0].reason == "llm_no_output")
-    add("S13 没有大模型且规则无候选（预期失败：no_candidate）", "点击 主页", False, "results",
+    add("S13 no LLM and no rule candidate (expected failure: no_candidate)", "点击 主页", False, "results",
         lambda: (lambda w: (w, mk(w)))(World("results")),
         lambda r: r.steps[0].reason == "no_candidate")
-    add("S14 第1步失败 + abort：后续步骤跳过", "点击 不存在的东西 然后 点击 Google Chrome", False, "desktop",
+    add("S14 step 1 fails + abort: remaining steps skipped", "点击 不存在的东西 然后 点击 Google Chrome", False, "desktop",
         lambda: (lambda w: (w, mk(w)))(World()),
         lambda r: [x.reason for x in r.steps] == ["no_candidate", "skipped"])
-    add("S15 第1步失败 + continue：后续步骤仍执行", "点击 不存在的东西 然后 点击 Google Chrome", False, "chrome",
+    add("S15 step 1 fails + continue: remaining steps still run", "点击 不存在的东西 然后 点击 Google Chrome", False, "chrome",
         lambda: (lambda w: (w, mk(w, on_step_fail="continue")))(World()),
         lambda r: [x.ok for x in r.steps] == [False, True])
-    add("S16 任务时间预算耗尽", "点击 Google Chrome", False, "desktop",
+    add("S16 task time budget exhausted", "点击 Google Chrome", False, "desktop",
         lambda: (lambda w: (w, mk(w, task_budget_s=-1)))(World()),
         lambda r: r.steps[0].reason == "budget_exceeded")
 
     def s17():
         w = World()
         return w, mk(w, launcher=lambda c: (w.goto("chrome") or True))
-    add("S17 系统 API 启动成功（Tool Use 路径）", "打开 Chrome", True, "chrome", s17,
+    add("S17 launch via system command succeeds (tool-use path)", "打开 Chrome", True, "chrome", s17,
         lambda r: r.steps[0].route == "tool_use" and r.steps[0].attempts == 1)
 
     def s18():
         w = World()
         return w, mk(w, launcher=lambda c: False)
-    add("S18 系统 API 启动失败 → 降级走视觉路径", "点击 Google Chrome", True, "chrome", s18,
+    add("S18 launch via system command fails -> fall back to the visual path", "点击 Google Chrome", True, "chrome", s18,
         lambda r: r.steps[0].route == "rule")
-    add("S19 “搜索 chrome 教程”不应被当成启动 Chrome", "搜索 chrome 教程", True, "desktop", lambda: None)
+    add("S19 \"search chrome tutorial\" must not launch Chrome", "搜索 chrome 教程", True, "desktop", lambda: None)
 
-    # ---- 第 8 周 ----
+    # ---- week 8 ----
     def s21():
         w = World()
         return w, mk(w, ctrl=KeyController(w, keys={"desktop": {"ctrl+t": "edge"}}))
-    add("S21 快捷键直接执行（不找目标）", "按 Ctrl+T", True, "edge", s21,
+    add("S21 hotkey runs directly (no target lookup)", "按 Ctrl+T", True, "edge", s21,
         lambda r: r.steps[0].route == "direct" and not r.steps[0].unverified)
 
     def s22():
         w = World()
         return w, mk(w, ctrl=KeyController(w))
-    add("S22 快捷键后画面没变：不重试，只标记未确认", "按 Ctrl+V", True, "desktop", s22,
+    add("S22 screen unchanged after a hotkey: no retry, marked unverified", "按 Ctrl+V", True, "desktop", s22,
         lambda r: r.steps[0].attempts == 1 and r.steps[0].unverified)
 
     def s23():
         w = World("results")
         return w, mk(w, ctrl=KeyController(w, scroll_to={"results": "desktop"}))
-    add("S23 滚动", "向下滚动 3 次", True, "desktop", s23, lambda r: r.steps[0].route == "direct")
-    add("S24 输入后屏幕上找不到输入的内容：标记未确认、不重复输入", "搜索 天气", True, "results",
+    add("S23 scroll", "向下滚动 3 次", True, "desktop", s23, lambda r: r.steps[0].route == "direct")
+    add("S24 typed text not found on screen: marked unverified, not typed again", "搜索 天气", True, "results",
         lambda: (lambda w: (w, mk(w)))(World("chrome")),
         lambda r: r.steps[0].unverified and r.steps[0].attempts == 1)
 
     def s25():
         w = World()
         return w, mk(w, replanner=lambda *a: ["点击 Google Chrome"], on_step_fail="replan", max_retries=1)
-    add("S25 步骤失败后重新规划，换一条路完成任务", "点击 不存在的东西", True, "chrome", s25,
+    add("S25 re-plan after a failed step and finish the task another way", "点击 不存在的东西", True, "chrome", s25,
         lambda r: r.summary.get("replans") == 1)
 
     def s26():
         w = World()
         return w, mk(w, replanner=lambda *a: None, on_step_fail="replan", max_retries=1)
-    add("S26 重新规划没给出结果：按 abort 处理", "点击 不存在的东西 然后 点击 Google Chrome", False, "desktop", s26,
+    add("S26 re-planning returns nothing: handled as abort", "点击 不存在的东西 然后 点击 Google Chrome", False, "desktop", s26,
         lambda r: [x.reason for x in r.steps] == ["no_candidate", "skipped"])
     return S
 
@@ -137,7 +140,7 @@ def run_scenarios():
     out = []
     for sc in scenarios():
         if sc["build"]() is None:
-            continue                      # S19 单独处理
+            continue                      # S19 is handled separately
         world, (ex, perc, ctrl) = sc["build"]()
         ex.monitor.trace_path = os.path.join(LOGDIR, "trace.jsonl")
         lg.info("===== %s =====", sc["name"])
@@ -156,11 +159,11 @@ def run_scenarios():
     ex, perc, ctrl = mk(w, launcher=lambda c: (w.goto("chrome") or True))
     r = ex.run("搜索 chrome 教程")
     launched = w.state == "chrome"
-    out.append({"name": "S19 “搜索 chrome 教程”不应被当成启动 Chrome", "instruction": "搜索 chrome 教程",
-                "expect_ok": "不启动应用", "ok": r.ok, "final_state": w.state, "expect_state": "desktop",
+    out.append({"name": "S19 \"search chrome tutorial\" must not launch Chrome", "instruction": "搜索 chrome 教程",
+                "expect_ok": "no app launched", "ok": r.ok, "final_state": w.state, "expect_state": "desktop",
                 "attempts": r.summary["attempts"], "retries": r.summary["retries"], "reasons": r.summary["failure_reasons"],
                 "extra_check": not launched, "passed": not launched, "steps": []})
-    # S20 FailSafe 必须一路抛出
+    # S20: FailSafe must propagate all the way up
     w = World()
     ctrl = FakeController(w)
     def boom(*a, **k): raise PG.FailSafeException()
@@ -171,8 +174,8 @@ def run_scenarios():
         ex.run("点击 Google Chrome")
     except PG.FailSafeException:
         raised = True
-    out.append({"name": "S20 FAILSAFE 紧急停止必须中断任务而不是被重试", "instruction": "点击 Google Chrome",
-                "expect_ok": "抛出异常", "ok": not raised, "final_state": w.state, "expect_state": "desktop",
+    out.append({"name": "S20 FAILSAFE emergency stop must abort the task, not be retried", "instruction": "点击 Google Chrome",
+                "expect_ok": "exception raised", "ok": not raised, "final_state": w.state, "expect_state": "desktop",
                 "attempts": 0, "retries": 0, "reasons": {}, "extra_check": raised, "passed": raised, "steps": []})
     return out
 
@@ -193,15 +196,15 @@ def campaign(n_trials=3000):
                 ctrl = FakeController(w, rng=rng, p_fail=pf, p_noeffect=pn)
                 ex = TaskExecutor(perc, ctrl, None, TaskPlanner(), TaskMonitor(trace_path=None),
                                   ExecConfig(max_retries=n, launch_enabled=False, use_llm=False,
-                                             verify_text=False),   # 输入后的复查会多扫一次屏、多抽一次随机数，关掉以保持第 6 周的条件
+                                             verify_text=False),   # the post-typing check scans once more and draws extra random numbers; off to keep the week-6 conditions
                                   sleep=lambda s: None)
                 r = ex.run("点击 Google Chrome 然后 搜索 McMaster 选课")
                 ok += r.ok
                 att += r.summary["attempts"]
-            # 理论值：每步最多 n 次尝试，每次独立以概率 q 成功
-            #   第1步（点击）：q1 = (1-pm)(1-pf)(1-pn)；第2步（输入，不会"点了没反应"）：q2 = (1-pm)(1-pf)
-            #   P(步骤成功) = 1-(1-q)^n；P(任务成功) = P1*P2（第2步只在第1步成功后才执行）
-            #   平均尝试次数：一步最多尝试 n 次的期望 = (1-(1-q)^n)/q，整个任务 = E1 + P1*E2
+            # Theory: at most n attempts per step, each succeeding independently with probability q
+            #   step 1 (click): q1 = (1-pm)(1-pf)(1-pn); step 2 (type, cannot "click with no effect"): q2 = (1-pm)(1-pf)
+            #   P(step ok) = 1-(1-q)^n; P(task ok) = P1*P2 (step 2 only runs after step 1 succeeds)
+            #   mean attempts: for one step with at most n tries = (1-(1-q)^n)/q; whole task = E1 + P1*E2
             P1, P2 = 1 - (1 - q1) ** n, 1 - (1 - q2) ** n
             theory = P1 * P2
             theory_att = P1 / q1 + P1 * (P2 / q2)
@@ -224,4 +227,6 @@ if __name__ == "__main__":
         print(r)
     json.dump({"scenarios": sc, "campaign": camp}, open(os.path.join(RES, "fault_injection.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
-    print(f"\n场景通过 {sum(s['passed'] for s in sc)}/{len(sc)}")
+    print(f"\nscenarios passed {sum(s['passed'] for s in sc)}/{len(sc)}")
+    if not all(s["passed"] for s in sc):
+        raise SystemExit(1)                 # make CI fail when a scenario fails

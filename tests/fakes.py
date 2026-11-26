@@ -1,6 +1,7 @@
 """
-测试用的假对象：假的 pyautogui / pyperclip，以及一个"屏幕状态机"（World），
-配上假感知器、假控制器、假大模型，用来给 executor 注入各种故障。
+Test doubles: fake pyautogui / pyperclip, and a "screen state machine" (World) with a fake perceiver,
+fake controller and fake LLM, used to inject all kinds of faults into the executor.
+Screen texts are Chinese UI strings (记事本 Notepad, 回收站 Recycle Bin, 关闭 Close, 书签 Bookmarks, 搜索 Search).
 """
 import copy
 import sys
@@ -12,7 +13,7 @@ import numpy as np
 
 
 # ----------------------------------------------------------------------
-# 假的 pyautogui / pyperclip（沙箱里没有图形界面）
+# Fake pyautogui / pyperclip (the sandbox has no display)
 # ----------------------------------------------------------------------
 def install_fake_gui_modules():
     pg = types.ModuleType("pyautogui")
@@ -34,7 +35,7 @@ def install_fake_gui_modules():
 
 
 # ----------------------------------------------------------------------
-# 屏幕状态机
+# Screen state machine
 # ----------------------------------------------------------------------
 def E(text, x, y):
     return {"text": text, "center": (x, y)}
@@ -50,10 +51,10 @@ def make_states():
             "elements": {20: E("Search Google or type a URL", 500, 300), 21: E("关闭", 1900, 10),
                          22: E("书签", 300, 60)},
             "on_click": {21: "desktop"}, "on_type": {20: "results"}},
-        "chrome_dup": {          # 有两个"关闭"，第一个是摆设（点了没反应）
+        "chrome_dup": {          # two "Close" (关闭) elements; the first one does nothing when clicked
             "elements": {21: E("关闭", 1900, 10), 23: E("关闭", 1900, 60), 22: E("书签", 300, 60)},
             "on_click": {23: "desktop"}},
-        "chrome_btn": {          # 搜索按钮和搜索框同时存在
+        "chrome_btn": {          # a search button and a search box at the same time
             "elements": {41: E("搜索", 900, 300), 20: E("Search Google or type a URL", 500, 300)},
             "on_click": {41: "chrome_btn"}, "on_type": {20: "results"}},
         "oob": {"elements": {10: E("Google Chrome", 5000, 5000)}, "on_click": {10: "chrome"}},
@@ -95,7 +96,7 @@ class FakePerceiver:
         self.scans += 1
         if self.exc_first_n > 0:
             self.exc_first_n -= 1
-            raise RuntimeError("OCR 引擎崩溃(模拟)")
+            raise RuntimeError("OCR engine crashed (simulated)")
         els = self.world.elements()
         hide = set()
         if self.miss_first_n > 0:
@@ -159,7 +160,7 @@ class FakeController:
 
 
 class KeyController(FakeController):
-    """会按键、会滚动的假控制器。keys 是 {状态: {"ctrl+s": 下一个状态}}。"""
+    """Fake controller that can press keys and scroll. keys is {state: {"ctrl+s": next state}}."""
     def __init__(self, world, keys=None, scroll_to=None, **kw):
         super().__init__(world, **kw)
         self.keys, self.scroll_to, self.pressed, self.scrolled = keys or {}, scroll_to or {}, [], []
@@ -180,7 +181,7 @@ class KeyController(FakeController):
 
 
 class FakeAgent:
-    """script 里每项是一次调用的行为：good / none / bad_id / timeout / raise"""
+    """Each item in script is the behaviour of one call: good / none / bad_id / timeout / raise"""
     def __init__(self, script, oracle, timeout_sleep=1.0):
         self.script, self.oracle, self.timeout_sleep = list(script), oracle, timeout_sleep
         self.calls = []
@@ -191,10 +192,10 @@ class FakeAgent:
         if mode == "none":
             return None
         if mode == "bad_id":
-            return {"action": "click", "target_id": 9999, "reason": "幻觉"}
+            return {"action": "click", "target_id": 9999, "reason": "hallucination"}
         if mode == "timeout":
             time.sleep(self.timeout_sleep)
             return None
         if mode == "raise":
-            raise RuntimeError("ollama 连接失败(模拟)")
+            raise RuntimeError("ollama connection failed (simulated)")
         return self.oracle(instruction, elements_dict)

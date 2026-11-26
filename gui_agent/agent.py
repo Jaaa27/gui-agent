@@ -1,4 +1,10 @@
-"""多模态大模型这一路（llava，走本地 Ollama）：规则匹配不了的时候才会调到这里。"""
+"""Multimodal LLM path (LLaVA via local Ollama). Only called when the rule matcher finds no target.
+
+The system prompt below is deliberately kept in Chinese: it is the prompt the evaluation
+was run with, and the task instructions it is paired with are mostly Chinese. In short it
+says: pick target_id ONLY from the listed valid IDs, never invent one, and answer with a
+```json block containing {"action": "click"|"type", "target_id", "text"?, "reason"}.
+"""
 import base64
 import json
 import logging
@@ -11,7 +17,7 @@ log = logging.getLogger("gui_agent")
 
 class GUIAgent:
     def __init__(self, model_name="llava"):
-        # 不开 format="json"，开了模型会死板地照抄示例。num_ctx 调大是怕长字典被截断
+        # No format="json": with it the model copies the example literally. num_ctx is raised so long element dicts are not truncated
         self.llm = ChatOllama(model=model_name, temperature=0, num_ctx=8192)
 
     @staticmethod
@@ -20,9 +26,9 @@ class GUIAgent:
             return base64.b64encode(f.read()).decode("utf-8")
 
     def think(self, instruction, image_path, elements_dict, valid_ids=None):
-        """返回 {"action", "target_id", ...}，模型没按格式输出就返回 None。
+        """Return {"action", "target_id", ...}, or None if the model did not follow the format.
 
-        valid_ids 是剪枝之后允许选的 id，写进提示词里约束模型别瞎编数字。
+        valid_ids are the IDs still allowed after pruning; they are written into the prompt so the model cannot make up numbers.
         """
         img_base64 = self._encode_image(image_path)
         valid_id_str = ", ".join(valid_ids) if valid_ids else "无合法ID可用"
@@ -60,14 +66,14 @@ class GUIAgent:
 
         try:
             raw = str(self.llm.invoke(messages).content)
-            log.debug("llava 原始输出: %s", raw)
+            log.debug("llava raw output: %s", raw)
             if "```json" in raw:
                 return json.loads(raw.split("```json")[1].split("```")[0].strip())
             stripped = raw.strip()
-            if stripped.startswith("{") and stripped.endswith("}"):    # 忘了加代码块也认
+            if stripped.startswith("{") and stripped.endswith("}"):    # also accept JSON without the code fence
                 return json.loads(stripped)
-            log.warning("模型没有输出标准 JSON")
+            log.warning("model did not return valid JSON")
             return None
         except Exception as e:
-            log.warning("推理或解析失败: %s", e)
+            log.warning("inference or parsing failed: %s", e)
             return None

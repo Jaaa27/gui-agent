@@ -1,7 +1,7 @@
-"""跑理想感知条件下的仿真，把结果写成和真机评估相同格式的 CSV。
+"""Run the ideal-perception simulation and write the results as a CSV in the same format as the real-machine evaluation.
 
     python -m evaluation.run_sim --out results/sim_runs.csv
-    python -m evaluation.run_sim --ext --out results/sim_ext.csv     第 8 周扩展动作的 4 个任务，前后对比
+    python -m evaluation.run_sim --ext --out results/sim_ext.csv     the 4 week-8 extended-action tasks, before vs after
 """
 import argparse
 import csv
@@ -16,9 +16,9 @@ from .tasks import EXT_TASKS, TASKS
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="results/sim_runs.csv")
-    ap.add_argument("--ext", action="store_true", help="跑扩展动作任务（有/没有按键滚动等待两种条件）")
+    ap.add_argument("--ext", action="store_true", help="run the extended-action tasks (with and without hotkey/scroll/wait)")
     a = ap.parse_args()
-    logging.getLogger("gui_agent").disabled = True       # 仿真不需要刷日志
+    logging.getLogger("gui_agent").disabled = True       # no logging needed in the simulation
 
     if a.ext:
         rows = run_sim(EXT_TASKS, True, direct_actions=False) + run_sim(EXT_TASKS, True)
@@ -31,8 +31,8 @@ def main():
         w.writerows(rows)
     for cond in dict.fromkeys(r["condition"] for r in rows):
         rs = [r for r in rows if r["condition"] == cond]
-        print(f"{cond}: {sum(r['final_ok'] for r in rs)}/{len(rs)} 通过")
-    print("已写入", a.out)
+        print(f"{cond}: {sum(r['final_ok'] for r in rs)}/{len(rs)} passed")
+    print("written to", a.out)
 
 
 if __name__ == "__main__":

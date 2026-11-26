@@ -1,7 +1,9 @@
-"""读评估结果，生成微调对比报告（markdown）和几张图。
+"""Read the evaluation results and generate the fine-tuning comparison report (markdown) and charts.
 
-读 results/summary.json、results/*.json、training_log.json，
-写 week5_report.md 和 week5_*_chart.png。
+Reads results/summary.json, results/*.json and training_log.json;
+writes week5_report.md and week5_*_chart.png.
+
+The generated report and chart labels are in Chinese (the internship reports were written in Chinese).
 
     python -m training.report --results results --train_log outputs/lora_gui/training_log.json --out report
 """
@@ -116,12 +118,12 @@ def main():
     ap.add_argument("--results", default="results")
     ap.add_argument("--train_log", default="outputs/lora_gui/training_log.json")
     ap.add_argument("--out", default="report")
-    ap.add_argument("--allow_mock", action="store_true", help="允许对 mock 自测结果生成报告（会加醒目警告）")
+    ap.add_argument("--allow_mock", action="store_true", help="allow a report from mock self-test results (adds a prominent warning)")
     a = ap.parse_args()
 
     s = load(a.results)
     if s.get("mock") and not a.allow_mock:
-        raise SystemExit("summary 是 MOCK 自测数据，不能生成正式报告（只想测流水线请加 --allow_mock）")
+        raise SystemExit("summary contains MOCK self-test data and cannot produce a real report (use --allow_mock to test the pipeline)")
     os.makedirs(a.out, exist_ok=True)
     C = s["configs"]
 
@@ -172,7 +174,7 @@ def main():
         "### 4.4 合成测试集 test — 仅打字类任务\n", table(s, "type", "test"),
     ]
 
-    # 自动结论
+    # conclusions generated from the data
     b1, bl, b2, ft = (g(c, "hard50", "overall", "exact") for c in ("base_v1", "base_v1_legacy", "base_v2", "ft_ft"))
     t1, t2, tf = (g(c, "hard50", "type", "exact") for c in ("base_v1", "base_v2", "ft_ft"))
     lines.append("## 5. 结论（由数据自动生成）\n")
@@ -197,7 +199,7 @@ def main():
         lines.append(f"- **推理延迟**：优化提示词（含 few-shot）{lat_b:.2f}s/条，微调模型（极简提示词）{lat_f:.2f}s/条。")
     lines.append("")
 
-    # 错误分析
+    # error analysis
     lines.append("## 6. 错误分析\n")
     for cfg in ("ft_ft", "base_v2"):
         if cfg not in C:
@@ -226,7 +228,7 @@ def main():
     path = os.path.join(a.out, "week5_report.md")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    print(f"报告已生成：{path}")
+    print(f"report written: {path}")
 
 
 if __name__ == "__main__":

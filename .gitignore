@@ -1,6 +1,22 @@
+# Python
 __pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Runtime output
 logs/
 outputs/
 som_test_result.png
+test_screenshot.png
 results/screens/
+results/perception_bench.json
 data/*.jsonl

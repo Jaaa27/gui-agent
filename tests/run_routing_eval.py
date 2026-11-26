@@ -1,4 +1,4 @@
-"""规则路由对比：v1（复刻 main.py）vs v2（matcher + executor 的决策部分）。不含大模型。"""
+"""Rule-routing comparison: v1 (copy of the original main.py) vs v2 (matcher + the decision part of the executor). No LLM."""
 import json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
@@ -28,7 +28,7 @@ def v2_route(ins, els):
 
 
 def judge(r, act, ids, text, app_ok):
-    """返回 correct / wrong / llm"""
+    """Return correct / wrong / llm"""
     if r["kind"] == "llm":
         return "llm"
     if r["kind"] == "tool_use":
@@ -44,7 +44,7 @@ def run(cases, els):
     rows = []
     for ins, act, ids, text, app_ok, note in cases:
         r1, r2 = v1_route(ins, els), v2_route(ins, els)
-        # v1 的规则路径永远是 click，不带文本
+        # v1's rule path is always a click, never with text
         j1 = judge(r1, act, ids, None if r1["kind"] != "rule" else None, app_ok)
         if r1["kind"] == "rule" and act == "type":
             j1 = "wrong"
@@ -71,11 +71,11 @@ if __name__ == "__main__":
     json.dump(out, open(os.path.join(ROOT, "results", "week6", "routing_eval.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     for k in ("hard50", "adversarial"):
         print(k, "n=", out[k]["n"], "v1", out[k]["v1"], "v2", out[k]["v2"])
-    print("\n--- v2 非正确 ---")
+    print("\n--- v2 not correct ---")
     for r in rows50 + rowsadv:
         if r["v2_result"] != "correct":
-            print(r["v2_result"], r["instruction"], "| 期望", r["expected"], "| v2", r["v2"])
-    print("\n--- v1 在对抗集上的错误 ---")
+            print(r["v2_result"], r["instruction"], "| expected", r["expected"], "| v2", r["v2"])
+    print("\n--- v1 errors on the adversarial set ---")
     for r in rowsadv:
         if r["v1_result"] != "correct":
             print(r["v1_result"], r["instruction"], r["v1"])

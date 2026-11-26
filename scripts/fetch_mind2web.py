@@ -1,7 +1,7 @@
-"""从 Hugging Face 流式读 Mind2Web，抽前 N 条整理成 data/dataset_sample_100.json。
+"""Stream Mind2Web from Hugging Face and save the first N tasks as data/dataset_sample_100.json.
 
-streaming=True 不用把几十 GB 的数据整个下下来。只留任务指令、网站领域和动作数量，
-指令为空或没有动作序列的当脏数据跳过。需要 pip install datasets。
+streaming=True avoids downloading tens of GB. Only the task instruction, website domain and number of actions
+are kept; samples with an empty instruction or no action sequence are skipped. Requires pip install datasets.
 """
 import argparse
 import json
@@ -31,7 +31,7 @@ def fetch(dataset_name="osunlp/Mind2Web", split="train", num_samples=100, out="d
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(samples, f, indent=4, ensure_ascii=False)
-    print(f"保存 {len(samples)} 条（跳过 {skipped} 条脏数据）-> {out}")
+    print(f"saved {len(samples)} samples (skipped {skipped} invalid) -> {out}")
 
 
 if __name__ == "__main__":

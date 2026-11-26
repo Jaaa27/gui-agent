@@ -1,0 +1,225 @@
+{
+  "simulated": false,
+  "analysis": {
+    "overall": {
+      "n": 18,
+      "success": 10,
+      "success_rate": 55.6,
+      "ci_low": 33.7,
+      "ci_high": 75.4,
+      "avg_time_success": 3.79,
+      "error_rate": 44.4,
+      "retry_rate": 11.1,
+      "avg_attempts": 1.17,
+      "false_positive": 7,
+      "false_negative": 0
+    },
+    "by_condition": {
+      "agent=llava/允许系统启动": {
+        "n": 18,
+        "success": 10,
+        "success_rate": 55.6,
+        "ci_low": 33.7,
+        "ci_high": 75.4,
+        "avg_time_success": 3.79,
+        "error_rate": 44.4,
+        "retry_rate": 11.1,
+        "avg_attempts": 1.17,
+        "false_positive": 7,
+        "false_negative": 0
+      }
+    },
+    "by_level": {
+      "('agent=llava/允许系统启动', 1)": {
+        "n": 18,
+        "success": 10,
+        "success_rate": 55.6,
+        "ci_low": 33.7,
+        "ci_high": 75.4,
+        "avg_time_success": 3.79,
+        "error_rate": 44.4,
+        "retry_rate": 11.1,
+        "avg_attempts": 1.17,
+        "false_positive": 7,
+        "false_negative": 0
+      }
+    },
+    "by_app": {
+      "('agent=llava/允许系统启动', 'calculator')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.89,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'chrome')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.31,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'edge')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.34,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'explorer')": {
+        "n": 6,
+        "success": 1,
+        "success_rate": 16.7,
+        "ci_low": 3.0,
+        "ci_high": 56.4,
+        "avg_time_success": 15.31,
+        "error_rate": 83.3,
+        "retry_rate": 33.3,
+        "avg_attempts": 1.5,
+        "false_positive": 4,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'notepad')": {
+        "n": 3,
+        "success": 0,
+        "success_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 56.2,
+        "avg_time_success": null,
+        "error_rate": 100.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 3,
+        "false_negative": 0
+      }
+    },
+    "by_resolution": {
+      "('agent=llava/允许系统启动', '1920x1080-125%')": {
+        "n": 18,
+        "success": 10,
+        "success_rate": 55.6,
+        "ci_low": 33.7,
+        "ci_high": 75.4,
+        "avg_time_success": 3.79,
+        "error_rate": 44.4,
+        "retry_rate": 11.1,
+        "avg_attempts": 1.17,
+        "false_positive": 7,
+        "false_negative": 0
+      }
+    },
+    "by_task": {
+      "('agent=llava/允许系统启动', 'T01')": {
+        "n": 3,
+        "success": 0,
+        "success_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 56.2,
+        "avg_time_success": null,
+        "error_rate": 100.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 3,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'T02')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.89,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'T03')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.31,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'T04')": {
+        "n": 3,
+        "success": 3,
+        "success_rate": 100.0,
+        "ci_low": 43.8,
+        "ci_high": 100.0,
+        "avg_time_success": 2.34,
+        "error_rate": 0.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 0,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'T05')": {
+        "n": 3,
+        "success": 0,
+        "success_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 56.2,
+        "avg_time_success": null,
+        "error_rate": 100.0,
+        "retry_rate": 0.0,
+        "avg_attempts": 1.0,
+        "false_positive": 3,
+        "false_negative": 0
+      },
+      "('agent=llava/允许系统启动', 'T06')": {
+        "n": 3,
+        "success": 1,
+        "success_rate": 33.3,
+        "ci_low": 6.1,
+        "ci_high": 79.2,
+        "avg_time_success": 15.31,
+        "error_rate": 66.7,
+        "retry_rate": 66.7,
+        "avg_attempts": 2.0,
+        "false_positive": 1,
+        "false_negative": 0
+      }
+    },
+    "failure_stage": {
+      "agent=llava/允许系统启动": {
+        "perception": 0,
+        "decision": 1,
+        "action": 0,
+        "verification": 0,
+        "other": 7
+      }
+    },
+    "failure_reason": {
+      "agent=llava/允许系统启动": {
+        "check_failed": 7,
+        "llm_invalid": 1
+      }
+    }
+  }
+}

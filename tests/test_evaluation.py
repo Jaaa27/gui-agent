@@ -44,7 +44,8 @@ class TestAnalysis(unittest.TestCase):
         a = analyze(rows)
         by = {k: v["success"] for k, v in a["by_condition"].items()}
         self.assertEqual(sorted(by.values()), [10, 19])
-        # T17（往空白编辑区输入）预计做不了
+        # T17 (typing into the blank edit area) is expected to fail
+        # "允许系统启动" = system launch allowed (condition value recorded by sim.py)
         failed = {r["task_id"] for r in rows if r["condition"].endswith("允许系统启动") and not r["final_ok"]}
         self.assertEqual(failed, {"T17"})
 

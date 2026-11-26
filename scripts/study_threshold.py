@@ -1,18 +1,24 @@
-"""验证阈值 change_thr 是怎么定的：在合成屏幕上量各种"画面变化"的指纹差。
+"""How the verification threshold was chosen: measure signature differences for various "screen changes" on synthetic screens.
 
     python -m scripts.study_threshold
 
-做法：画一张 1920x1080 的假桌面（渐变壁纸 + 浏览器窗口 + 一堆文字），对它做两类改动，
-用 ScreenPerceiver 里同样的指纹（64x36 灰度，INTER_AREA）判断前后画面变没变：
-  噪声类 —— 点击之后我们不希望算作"画面变了"的：光标挪位置、输入光标闪烁、时钟走一分钟
-  变化类 —— 点击/输入真的起作用时会出现的：弹出菜单、搜索框里打字、发出一条消息、
-            弹对话框、整页切换
-每种改动随机位置/内容重复 N 次。比较两种判据：
-  旧：全图平均灰度差 mean(|a-b|)/255 > 0.01
-  新：灰度差超过 cell_delta 的格子数 >= min_cells（现在用的）
-再扫一遍 (cell_delta, min_cells)，按"噪声类一次都不误触发"挑最小的 min_cells。
-合成画面不是真实屏幕：真机上的噪声（视频、动画、广告）更多，所以这只是定初值的依据，
-真机上用 python -m scripts.bench_perception --idle-check 再核对一次。
+Method: draw a fake 1920x1080 desktop (gradient wallpaper + a browser window + text) and apply two kinds of
+changes, judging before/after with the same signature as ScreenPerceiver (64x36 grayscale, INTER_AREA):
+  noise - things that should NOT count as "the screen changed" after a click: the mouse cursor moving,
+          the text caret blinking, the clock ticking one minute
+  real  - what appears when a click/type actually worked: a popup menu, typing into a search box,
+          sending a message, a dialog, a full page switch
+Each change is repeated N times with random position/content. Two criteria are compared:
+  old: whole-image mean grey difference mean(|a-b|)/255 > 0.01
+  new: number of cells whose grey difference exceeds cell_delta >= min_cells (current)
+Then (cell_delta, min_cells) is swept, choosing the smallest min_cells with zero false triggers on noise.
+Synthetic screens are not real ones: real machines have more noise (video, animations, ads), so this only
+sets the initial values; check on a real machine with python -m scripts.bench_perception --idle-check.
+
+The change names are Chinese because they are the keys of results/week6/threshold_study.json, which the
+(Chinese) final-report figures read: 光标挪动 cursor move, 输入光标闪烁 caret blink, 时钟走一分钟 clock tick,
+弹出菜单 popup menu, 发出一条消息 send message, 弹对话框 dialog, 整页切换 page switch,
+搜索框打字N字符 typing N characters into the search box.
 """
 import json
 import os
@@ -37,16 +43,16 @@ def diff(a, b):
 
 
 def base_screen(rng):
-    """渐变壁纸 + 一个浏览器窗口，窗口里有标题栏、地址栏、搜索框和若干行文字。"""
+    """Gradient wallpaper + a browser window with a title bar, address bar, search box and some lines of text."""
     x = np.linspace(0, 1, W, dtype=np.float32)[None, :, None]
     y = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
     c0, c1 = np.array([120, 90, 40], np.float32), np.array([200, 160, 90], np.float32)
     img = (c0 * (1 - x) + c1 * x) * (1 - 0.3 * y)
     img = np.broadcast_to(img, (H, W, 3)).astype(np.uint8).copy()
-    cv2.rectangle(img, (160, 60), (1760, 1000), (250, 250, 250), -1)          # 窗口
-    cv2.rectangle(img, (160, 60), (1760, 110), (225, 225, 225), -1)           # 标题栏
-    cv2.rectangle(img, (160, 110), (1760, 170), (240, 240, 240), -1)          # 地址栏
-    cv2.rectangle(img, (500, 400), (1300, 440), (255, 255, 255), -1)          # 搜索框
+    cv2.rectangle(img, (160, 60), (1760, 1000), (250, 250, 250), -1)          # window
+    cv2.rectangle(img, (160, 60), (1760, 110), (225, 225, 225), -1)           # title bar
+    cv2.rectangle(img, (160, 110), (1760, 170), (240, 240, 240), -1)          # address bar
+    cv2.rectangle(img, (500, 400), (1300, 440), (255, 255, 255), -1)          # search box
     cv2.rectangle(img, (500, 400), (1300, 440), (150, 150, 150), 1)
     for i in range(14):
         n = rng.randint(20, 60)
@@ -60,7 +66,7 @@ def put_text(img, s, org, scale=0.7):
     cv2.putText(img, s, org, FONT, scale, (30, 30, 30), 1, cv2.LINE_AA)
 
 
-# ---- 噪声类 ----
+# ---- noise ----
 def cursor_move(img, rng):
     a, b = img.copy(), img.copy()
     for im in (a, b):
@@ -86,7 +92,7 @@ def clock_tick(img, rng):
     return a, b
 
 
-# ---- 变化类 ----
+# ---- real changes ----
 def popup_menu(img, rng):
     b = img.copy()
     x, y = rng.randint(200, 1400), rng.randint(200, 600)
@@ -99,7 +105,7 @@ def popup_menu(img, rng):
 
 def type_in_box(img, rng):
     b = img.copy()
-    n = rng.randint(4, 24)                         # 打了 4~24 个字符
+    n = rng.randint(4, 24)                         # 4-24 characters typed
     s = "".join(rng.choice("abcdefghijklmnopqrstuvwxyz ") for _ in range(n))
     put_text(b, s, (510, 428), 0.7)
     return img, b
@@ -139,7 +145,7 @@ def typing(n):
     return f
 
 
-# 打字不按回车时的变化，按回车通常会跳到结果页（整页切换）
+# Typing without pressing Enter; Enter usually leads to a results page (page switch)
 REAL = {"弹出菜单": popup_menu, "发出一条消息": send_message, "弹对话框": dialog, "整页切换": page_switch,
         "搜索框打字16字符": typing(16), "搜索框打字8字符": typing(8), "搜索框打字4字符": typing(4)}
 
@@ -149,7 +155,7 @@ def cells_changed(a, b, delta):
 
 
 def collect(n=200, seed=7):
-    """每类改动生成 n 对前后画面，返回 {名字: (类别, 旧判据的值数组, {delta: 变化格数数组})}。"""
+    """Generate n before/after pairs per change. Returns {name: (kind, old-criterion values, {delta: changed-cell counts})}."""
     rng = random.Random(seed)
     out = {}
     for kind, group in (("noise", NOISE), ("real", REAL)):
@@ -171,28 +177,28 @@ OLD_THR = 0.01
 def main():
     data = collect()
     res = {"old": {}, "new": {}, "sweep": {}}
-    print("旧判据 mean>0.01：")
+    print("old criterion mean>0.01:")
     for name, (kind, old, _) in data.items():
         rate = float(np.mean(old > OLD_THR))
         res["old"][name] = {"kind": kind, "trigger_rate": rate, "median_value": float(np.median(old))}
-        print(f"  {kind:5s} {name:10s} 判为'变了'的比例 {rate:6.1%}   中位数 {np.median(old):.5f}")
+        print(f"  {kind:5s} {name:10s} judged 'changed' {rate:6.1%}   median {np.median(old):.5f}")
 
-    # 扫参数：min_cells 取噪声类最大格数 + 1，再比较各 delta 下变化类的检出率
-    print("\n新判据，按 delta 扫描：")
+    # Sweep: min_cells = max noise cells + 1, then compare detection of real changes for each delta
+    print("\nnew criterion, sweeping delta:")
     best = None
     for d in DELTAS:
         noise_max = max(int(v[2][d].max()) for v in data.values() if v[0] == "noise")
         m = noise_max + 1
         rates = {name: float(np.mean(v[2][d] >= m)) for name, v in data.items() if v[0] == "real"}
-        big = min(r for k, r in rates.items() if "打字" not in k)
+        big = min(r for k, r in rates.items() if "打字" not in k)   # exclude the typing cases ("打字" = typing)
         res["sweep"][str(d)] = {"noise_max_cells": noise_max, "min_cells": m, "detect": rates}
-        print(f"  delta={d:2d}: 噪声最多 {noise_max} 格 -> min_cells={m}; 检出率 " +
+        print(f"  delta={d:2d}: noise max {noise_max} cells -> min_cells={m}; detection " +
               ", ".join(f"{k} {r:.0%}" for k, r in rates.items()))
         score = (big, sum(rates.values()))
         if best is None or score > best[0]:
             best = (score, d, m)
     _, d, m = best
-    print(f"\n选 cell_delta={d}, min_cells={m}")
+    print(f"\nchosen: cell_delta={d}, min_cells={m}")
     for name, (kind, _, new) in data.items():
         res["new"][name] = {"kind": kind, "trigger_rate": float(np.mean(new[d] >= m)),
                             "cells_min": int(new[d].min()), "cells_median": float(np.median(new[d])),

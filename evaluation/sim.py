@@ -1,9 +1,13 @@
-"""理想感知条件下的仿真：把 20 个任务丢进一个假的 Windows 桌面，用真实的 planner / matcher / executor 跑。
+"""Ideal-perception simulation: run the 20 tasks on a fake Windows desktop with the real planner / matcher / executor.
 
-这里每个界面状态里的文字，是照着 Win11 中文界面凭印象写的，OCR 假设全部识别正确、点击不会失败。
-所以结果只能当"逻辑上限"来读：在这个上限都做不成的任务，真机上一定做不成；
-上限做得成的，真机上还会被 OCR 漏字、界面差异、点击偏移这些因素拖低。
-真实数据要用 runner.py 在自己电脑上跑。
+The text in each UI state is written from memory of the Chinese Windows 11 UI; OCR is assumed to be perfect and
+clicks never fail. The results are therefore only a "logical upper bound": a task that fails here will certainly
+fail on a real machine, while a task that passes here can still be dragged down by OCR misses, UI differences
+and click offsets. Real numbers come from runner.py on a real PC.
+
+The screen texts below are Chinese UI strings (e.g. "回收站" = Recycle Bin, "新标签页" = New Tab, "图片" = Images,
+"下载" = Downloads, "文档" = Documents, "另存为" = Save as). Condition values stay in Chinese to match the
+recorded CSVs (see evaluation/analyze.py: cond_label).
 """
 import re
 import zlib
@@ -11,12 +15,12 @@ import zlib
 import numpy as np
 
 def _web_nav(text):
-    # 浏览器地址栏/搜索框：像网址就跳到网站，否则当搜索词
+    # Browser address/search bar: a URL-like text opens the site, anything else is a search
     return ("site" if re.match(r"^[\w-]+(\.[\w-]+)+$", text.strip()) else "results"), text
 
 
-# 每个状态：elements 是屏幕上的文字（顺序即 id）；click 是 点击某文字 -> 下一个状态；
-# type 是 往含某关键词的输入框里打字 -> 下一个状态（可以是函数，拿到打的内容）
+# Each state: elements = texts on screen (order = id); click = clicking a text -> next state;
+# type = typing into an input box containing a keyword -> next state (may be a function that receives the typed text)
 STATES = {
     "desktop": {"elements": ["回收站", "Google Chrome", "Microsoft Edge"],
                 "click": {"Google Chrome": "chrome", "Microsoft Edge": "edge"}},
@@ -33,7 +37,7 @@ STATES = {
                  "click": {"下载": "explorer_dl", "文档": "explorer_docs"}},
     "explorer_dl": {"elements": ["下载", "桌面", "文档", "此电脑 > 下载"], "click": {}},
     "explorer_docs": {"elements": ["文档", "桌面", "下载", "此电脑 > 文档"], "click": {}},
-    # 记事本：编辑区是空的，没有任何文字，所以没有"输入框"可找
+    # Notepad: the edit area is empty and has no text, so there is no "input box" to find
     "notepad": {"elements": ["无标题 - 记事本", "文件", "编辑", "查看"],
                 "click": {"文件": "notepad_file", "编辑": "notepad_edit", "查看": "notepad_view"},
                 "keys": {"ctrl+s": "notepad_saveas"}},
@@ -67,7 +71,7 @@ class SimWorld:
         target = LAUNCH.get(cmd)
         if target is None:
             return False
-        # 记事本开着的时候再开计算器，两个都在屏幕上
+        # Opening Calculator while Notepad is open: both are on screen
         self.state = "notepad_calc" if (self.state.startswith("notepad") and target == "calculator") else target
         return True
 
@@ -137,17 +141,18 @@ class SimController:
 
 
 def run_sim(tasks, condition_launch, repeat=1, direct_actions=True):
-    """返回记录列表（和真机评估同一套字段）。condition_launch=False 就是只走视觉路径。
-    direct_actions=False 模拟第 7 周之前的版本：按键/滚动/等待都被当成点击。"""
+    """Return a list of records (same fields as the real-machine evaluation). condition_launch=False = visual path only.
+    direct_actions=False simulates the pre-week-8 version, where hotkey/scroll/wait were treated as clicks."""
     import time
     from gui_agent.executor import ExecConfig, TaskExecutor
     from gui_agent.monitor import TaskMonitor
     from gui_agent.planner import TaskPlanner
     from .record import check_expect, make_row
 
+    # "sim-ideal perception / system launch allowed | vision only" (kept in Chinese to match recorded CSVs)
     cond = "sim-理想感知/允许系统启动" if condition_launch else "sim-理想感知/仅视觉"
     if not direct_actions:
-        cond += "/无按键滚动等待"
+        cond += "/无按键滚动等待"            # "no hotkey/scroll/wait"
     rows = []
     for task in tasks:
         for rep in range(1, repeat + 1):
@@ -161,7 +166,7 @@ def run_sim(tasks, condition_launch, repeat=1, direct_actions=True):
             res = ex.run(task.instruction)
             wall = time.perf_counter() - t0
             auto = check_expect(w.texts(), task.expect)
-            rows.append(make_row(task, res, condition=cond, resolution="仿真", dpi_scale="",
+            rows.append(make_row(task, res, condition=cond, resolution="仿真", dpi_scale="",   # "仿真" = simulation
                                  repeat=rep, auto_ok=auto, manual_ok=None, wall_s=wall,
                                  run_id=f"{cond}-{task.id}-{rep}"))
     return rows

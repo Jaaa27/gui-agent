@@ -1,12 +1,13 @@
-"""动态区域屏蔽的效果：画面里有一块一直在播的"视频"时，验证还能不能用。
+"""Effect of dynamic-region masking: does verification still work while a "video" keeps playing on screen?
 
     python -m scripts.study_mask
 
-合成桌面（和 study_threshold 同一套）上放一块 320x180 的视频区，每一帧内容随机变化。
-对比三种做法下的两个比例：
-  误触发率：什么都没做（只有视频在播），验证却说"画面变了"
-  检出率：真的弹出了菜单/对话框/发了消息，验证说"画面变了"
-做法：不屏蔽 / calibrate() 自动屏蔽 / 把视频区手动写进 ignore_regions。
+A 320x180 video region whose content changes randomly every frame is placed on the synthetic desktop
+(the same one as study_threshold). Two rates are compared under three settings:
+  false-trigger rate: nothing happened (only the video played), yet verification says "the screen changed"
+  detection rate: a menu/dialog/message really appeared, and verification says "the screen changed"
+Settings: no mask / calibrate() automatic mask / the video region put into ignore_regions by hand.
+Change names (keys of results/week8/mask_study.json): 弹出菜单 popup menu, 弹对话框 dialog, 发出一条消息 send message.
 """
 import json
 import os
@@ -22,8 +23,8 @@ VIDEO = (1300, 760, 1620, 940)        # x1, y1, x2, y2
 
 
 def with_video(img, rng):
-    """视频画面用低频随机图代替（8x5 的随机色块放大），像真实视频一样大块大块地变，
-    而不是逐像素的白噪声——白噪声在 30x30 的格子里一平均就没了，测不出问题。"""
+    """The video is a low-frequency random image (8x5 random colour blocks, upscaled) that changes in large patches
+    like real video, rather than per-pixel white noise, which averages out inside a 30x30 cell and hides the problem."""
     out = img.copy()
     x1, y1, x2, y2 = VIDEO
     small = np.random.default_rng(rng.randint(0, 1 << 30)).integers(0, 256, (5, 8, 3), dtype=np.uint8)
@@ -32,7 +33,7 @@ def with_video(img, rng):
 
 
 def popup_away_from_video(img, rng):
-    # 菜单的位置随机，但不盖住视频区，否则看不出屏蔽本身的影响
+    # Random menu position, but never over the video region, so the effect of the mask itself is visible
     while True:
         a, b = popup_menu(img, rng)
         if not (b[VIDEO[1]:VIDEO[3], VIDEO[0]:VIDEO[2]] != a[VIDEO[1]:VIDEO[3], VIDEO[0]:VIDEO[2]]).any():

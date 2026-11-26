@@ -1,11 +1,14 @@
-"""生成 LoRA 微调用的训练/验证/测试集。
+"""Generate the train/val/test sets for LoRA fine-tuning.
 
-没直接用 Mind2Web：data/dataset_sample_100.json 里只有指令和动作数，没有"屏幕上有哪些元素、
-目标是哪一个"的标注，监督不了 agent 真正要做的事。所以这里照着 perceiver 的输出格式合成样本
-（带干扰元素、跳号的 id、中英文指令）。
+Mind2Web is not used directly: data/dataset_sample_100.json only has instructions and action counts, with no
+labels for "which elements are on screen and which one is the target", so it cannot supervise what the agent
+actually has to do. Instead, samples are synthesized in the perceiver's output format (with distractor
+elements, non-contiguous IDs, and Chinese and English instructions).
 
-防泄漏：hard50 的 50 条指令不会出现在任何划分里，输入内容的词库也和 hard50 不重叠，
-同一条指令文本按哈希只会落进一个划分。
+Leakage prevention: none of the 50 hard50 instructions appear in any split, the payload vocabulary does not
+overlap with hard50, and each instruction text is assigned to exactly one split by hash.
+
+The word lists and templates below are Chinese/English UI texts and instructions; they are the data itself.
 
     python -m training.build_dataset --out data --train 2400 --val 200 --test 300
 """
@@ -45,7 +48,7 @@ ADDR_BOXES = ["Search Google or type a URL", "搜索或输入网址", "输入网
 CHAT_BOXES = ["输入聊天信息...", "Type a message", "输入消息", "Message", "说点什么...", "Write a message...",
               "请输入内容", "输入聊天内容", "Send a message", "输入消息..."]
 
-# 要输入的内容（和 hard50 里的完全不重叠）
+# Payloads to type (no overlap with hard50)
 SEARCH_PAYLOADS = ["Python 基础", "今天股价", "附近的咖啡店", "机器学习入门", "深度学习 课程", "北京到上海高铁",
                    "汇率换算", "PyTorch 安装教程", "LoRA 微调", "最新电影", "周末天气预报", "红烧肉做法",
                    "Linux 命令大全", "多伦多 租房", "英语四级真题", "VS Code 快捷键", "GitHub 加速",
@@ -80,13 +83,13 @@ KIND_WEIGHTS = [("click_app", 0.22), ("click_file", 0.18), ("click_button", 0.20
 
 
 def split_of(instruction):
-    """按指令文本的哈希分到 train/val/test。"""
+    """Assign to train/val/test by a hash of the instruction text."""
     h = int(hashlib.md5(instruction.encode("utf-8")).hexdigest(), 16) % 100
     return "train" if h < 80 else ("val" if h < 88 else "test")
 
 
 def _alias(rng, text, kind):
-    """用户有时只说简称：Google Chrome -> Chrome；report.docx -> report。"""
+    """Users sometimes use a short name: Google Chrome -> Chrome; report.docx -> report."""
     if kind == "app" and " " in text and rng.random() < 0.25:
         return rng.choice([text.split(" ")[0], text.split(" ")[-1]])
     if kind == "file" and "." in text and rng.random() < 0.3:
@@ -95,7 +98,7 @@ def _alias(rng, text, kind):
 
 
 def _build_scene(rng, target_text, forbidden, extras=()):
-    """围绕目标元素凑一屏 OCR 结果（带干扰项），返回 (elements, id_of_text)。"""
+    """Build one screen of OCR results around the target (with distractors). Returns (elements, id_of_text)."""
     n = rng.randint(8, 22)
     texts = [target_text]
     seen = {target_text.lower()}
@@ -116,7 +119,7 @@ def _build_scene(rng, target_text, forbidden, extras=()):
         texts.append(d)
         seen.add(dl)
     rng.shuffle(texts)
-    ids = sorted(rng.sample(range(0, 60 + n * 2), len(texts)))  # 故意跳号，模拟低置信度的文字被过滤掉
+    ids = sorted(rng.sample(range(0, 60 + n * 2), len(texts)))  # deliberately non-contiguous, like low-confidence texts being filtered out
     elements = {}
     id_of_text = {}
     for i, t in zip(ids, texts):
@@ -148,7 +151,7 @@ def make_sample(rng):
             box, p, tpl, dist = rng.choice(CHAT_BOXES), rng.choice(CHAT_PAYLOADS), CHAT_TPL, SEARCH_BOXES
         elif kind == "type_url":
             box, p, tpl, dist = rng.choice(ADDR_BOXES), rng.choice(URL_PAYLOADS), URL_TPL, CHAT_BOXES
-        else:  # type_generic：场景里只放一个输入框，避免歧义
+        else:  # type_generic: only one input box on screen, to avoid ambiguity
             pool = rng.choice([SEARCH_BOXES, CHAT_BOXES, ADDR_BOXES])
             box = rng.choice(pool)
             p = rng.choice(SEARCH_PAYLOADS + CHAT_PAYLOADS + URL_PAYLOADS)
@@ -156,10 +159,10 @@ def make_sample(rng):
         instr = rng.choice(tpl).format(p=p)
         extras = []
         if dist and rng.random() < 0.35:
-            extras.append(rng.choice(dist))          # 干扰输入框
+            extras.append(rng.choice(dist))          # distractor input box
         forbidden = [box.lower()]
         if kind in ("type_search", "type_url"):
-            forbidden += ["搜索", "search"]          # 避免出现语义上同样像"搜索入口"的干扰项
+            forbidden += ["搜索", "search"]          # avoid distractors that also look like a search entry
         elements, idmap = _build_scene(rng, box, forbidden, extras)
         tid = idmap[box]
         target = {"action": "type", "target_id": tid, "text": p, "reason": f"输入框「{box}」，提取输入内容"}
@@ -174,13 +177,13 @@ def make_sample(rng):
 
 
 def validate(rec):
-    """标签得和场景对得上，对不上直接报错。"""
+    """The label must match the screen; fail loudly if it doesn't."""
     tid = str(rec["target"]["target_id"])
-    assert tid in rec["elements"], "target id 不在元素字典中"
+    assert tid in rec["elements"], "target id not in the element dict"
     assert int(tid) in rec["valid_ids"]
     if rec["target"]["action"] == "type":
-        assert rec["target"]["text"] in rec["instruction"], "输入内容未出现在指令中"
-    assert all(len(v["text"]) < 30 for v in rec["elements"].values()), "元素文本过长（agent 会剪枝掉>=30字）"
+        assert rec["target"]["text"] in rec["instruction"], "payload does not appear in the instruction"
+    assert all(len(v["text"]) < 30 for v in rec["elements"].values()), "element text too long (the agent prunes texts of >= 30 characters)"
 
 
 def build(out_dir, n_train, n_val, n_test, seed):
@@ -202,13 +205,13 @@ def build(out_dir, n_train, n_val, n_test, seed):
         rec["id"] = f"{sp}_{len(data[sp])}"
         data[sp].append(rec)
 
-    # 泄漏检查
+    # leakage checks
     instr_sets = {k: {r["instruction"] for r in v} for k, v in data.items()}
-    assert not (instr_sets["train"] & instr_sets["val"]), "train/val 指令泄漏"
-    assert not (instr_sets["train"] & instr_sets["test"]), "train/test 指令泄漏"
-    assert not (instr_sets["val"] & instr_sets["test"]), "val/test 指令泄漏"
+    assert not (instr_sets["train"] & instr_sets["val"]), "train/val instruction leak"
+    assert not (instr_sets["train"] & instr_sets["test"]), "train/test instruction leak"
+    assert not (instr_sets["val"] & instr_sets["test"]), "val/test instruction leak"
     for k, s in instr_sets.items():
-        assert not (s & HARD50_INSTRUCTIONS), f"{k} 含 hard50 指令"
+        assert not (s & HARD50_INSTRUCTIONS), f"{k} contains hard50 instructions"
 
     os.makedirs(out_dir, exist_ok=True)
     for k, v in data.items():
@@ -237,4 +240,4 @@ if __name__ == "__main__":
     a = ap.parse_args()
     m = build(a.out, a.train, a.val, a.test, a.seed)
     print(json.dumps(m, ensure_ascii=False, indent=2))
-    print(f"数据集已生成到 {a.out}/")
+    print(f"dataset written to {a.out}/")

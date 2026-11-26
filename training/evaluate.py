@@ -1,15 +1,15 @@
-"""微调前后、提示词前后的对比评估。同一个基座，同一批数据，跑几种配置：
+"""Before/after comparison for fine-tuning and prompting. Same base model, same data, several configurations:
 
-  base_v1_legacy  基座 + 原提示词，不传合法 id 列表（第 4 周旧测试脚本的调用方式）
-  base_v1         基座 + 原提示词，传合法 id 列表（agent.py 实际运行时的方式）
-  base_v2         基座 + 优化后的提示词
-  ft_ft           基座 + LoRA + 微调专用提示词
-  ft_v2           LoRA + v2 提示词，看微调模型换提示词后稳不稳
+  base_v1_legacy  base + original prompt, without the valid-ID list (how the old week-4 test script called it)
+  base_v1         base + original prompt, with the valid-ID list (how agent.py actually calls it)
+  base_v2         base + revised prompt
+  ft_ft           base + LoRA + the fine-tuning prompt
+  ft_v2           LoRA + v2 prompt, to see whether the fine-tuned model is robust to a prompt change
 
-评测集两个：test（合成的，指令和训练集零重叠）、hard50（第 4 周的固定 50 题）。
+Two evaluation sets: test (synthetic, zero instruction overlap with training) and hard50 (the fixed week-4 set).
 
     python -m training.evaluate --data data --adapter outputs/lora_gui --out results
-    python -m training.evaluate --data data --backend mock --out results_mock --limit 60   # 无 GPU 自测，结果不能写进报告
+    python -m training.evaluate --data data --backend mock --out results_mock --limit 60   # pipeline self-test without a GPU; NOT reportable results
 """
 import argparse
 import json
@@ -54,7 +54,7 @@ class HFBackend:
         self.model = model
 
     def generate(self, messages_list, use_adapter):
-        """返回 [(text, latency_per_sample)]"""
+        """Return [(text, latency_per_sample)]"""
         torch = self.torch
         outs = []
         for i in range(0, len(messages_list), self.batch_size):
@@ -78,7 +78,7 @@ class HFBackend:
 
 
 class MockBackend:
-    """只用来自测流水线：按配置随机给不同的正确率，不代表任何真实模型的能力。"""
+    """Only for testing the pipeline: random accuracy per configuration; says nothing about any real model."""
     P = {"base_v1_legacy": 0.3, "base_v1": 0.5, "base_v2": 0.65, "ft_ft": 0.95, "ft_v2": 0.9}
 
     def __init__(self):
@@ -96,7 +96,7 @@ class MockBackend:
                     d["text"] = t.get("text") or ""
                 s = "```json\n" + json.dumps(d, ensure_ascii=False) + "\n```"
             elif self.rng.random() < 0.3:
-                s = "抱歉，我无法确定。"
+                s = "抱歉，我无法确定。"   # "Sorry, I am not sure." - a simulated non-JSON answer
             else:
                 s = json.dumps({"action": "click", "target_id": 9999}, ensure_ascii=False)
             outs.append((s, 0.01))
@@ -124,11 +124,11 @@ def run_config(backend, cfg_name, recs, mock):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="Qwen/Qwen2.5-1.5B-Instruct")
-    ap.add_argument("--adapter", default=None, help="LoRA 适配器目录（含 adapter_model.safetensors）")
+    ap.add_argument("--adapter", default=None, help="LoRA adapter directory (containing adapter_model.safetensors)")
     ap.add_argument("--data", default="data")
     ap.add_argument("--out", default="results")
     ap.add_argument("--configs", nargs="+", default=None)
-    ap.add_argument("--limit", type=int, default=None, help="每个评测集最多评多少条（调试用）")
+    ap.add_argument("--limit", type=int, default=None, help="max samples per evaluation set (for debugging)")
     ap.add_argument("--batch", type=int, default=8)
     ap.add_argument("--max_new_tokens", type=int, default=128)
     ap.add_argument("--backend", choices=["hf", "mock"], default="hf")
@@ -138,7 +138,7 @@ def main():
     cfgs = a.configs or (DEFAULT_CONFIGS if not mock else DEFAULT_CONFIGS + ["ft_v2"])
     if not mock and not a.adapter:
         cfgs = [c for c in cfgs if not CONFIGS[c]["adapter"]]
-        print("[提示] 未提供 --adapter，只评估基座配置。")
+        print("[note] no --adapter given; evaluating the base configurations only.")
     os.makedirs(a.out, exist_ok=True)
 
     datasets = {"test": load_jsonl(os.path.join(a.data, "test.jsonl")),
@@ -153,7 +153,7 @@ def main():
     for cfg_name in cfgs:
         summary["configs"][cfg_name] = {}
         for ds_name, recs in datasets.items():
-            print(f"[eval] {cfg_name} on {ds_name} ({len(recs)} 条)...")
+            print(f"[eval] {cfg_name} on {ds_name} ({len(recs)} samples)...")
             rows = run_config(backend, cfg_name, recs, mock)
             metrics = aggregate(rows)
             summary["configs"][cfg_name][ds_name] = metrics
@@ -166,7 +166,7 @@ def main():
 
     with open(os.path.join(a.out, "summary.json"), "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
-    print(f"评估完成，结果在 {a.out}/summary.json" + ("  （MOCK 自测数据）" if mock else ""))
+    print(f"evaluation done, results in {a.out}/summary.json" + ("  (MOCK self-test data)" if mock else ""))
 
 
 if __name__ == "__main__":

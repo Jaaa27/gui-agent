@@ -1,3 +1,4 @@
+"""The two week-6 charts (routing comparison, retry simulation). Labels are Chinese because the week-6 report is."""
 import json, os
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt

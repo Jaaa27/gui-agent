@@ -1,6 +1,9 @@
-"""结项报告用的图，全部从 results/ 里的数据画出来（架构图和时间线是手画的示意图）。
+"""Figures for the final report, all drawn from the data in results/ (the architecture diagram and timeline are schematic).
 
-    python -m scripts.make_final_figures        输出到 results/final/
+    python -m scripts.make_final_figures        writes to results/final/
+
+The report is written in Chinese, so the chart labels are Chinese; the architecture diagram is drawn in both
+Chinese (fig_architecture.png) and English (fig_architecture_en.png, used by the README).
 """
 import csv
 import json
@@ -35,56 +38,94 @@ def _save(fig, name):
 
 
 # ----------------------------------------------------------------------
-def fig_architecture():
+# Architecture diagram text in Chinese and English, in the order fig_architecture draws the boxes and arrow labels
+ARCH_TEXT = {
+    "zh": dict(
+        user="用户指令",
+        boxes=[
+            ("任务拆解", "planner.py\n规则拆分顺序连接词\n长指令可交大模型拆"),
+            ("执行器", "executor.py\n逐步执行、失败分类\n退避重试、重新规划"),
+            ("决策（双轨）", "matcher.py 规则优先\n点击打分 / 找输入框\n规则无候选才问大模型"),
+            ("大模型兜底", "agent.py：LLaVA（Ollama）\nagent_lora.py：Qwen2.5-1.5B\n+ LoRA 适配器（第5周）"),
+            ("屏幕感知", "perceiver.py\n截图（mss）、DPI 感知、自适应降采样\nEasyOCR / PaddleOCR\nSet-of-Mark 编号、画面指纹缓存"),
+            ("动作执行", "controller.py\n点击、输入（中文走剪贴板）\n按键、滚动、等待（第8周）\nFAILSAFE 紧急停止"),
+            ("系统命令（Tool Use）", "find_app_command\n“打开记事本” → notepad\n启动失败自动改走视觉"),
+            ("验证", "画面指纹前后对比（格子计数，可屏蔽动态区域）\n输入后复查屏幕上有没有输入的内容（没有就标记未确认）"),
+            ("监控与日志", "monitor.py：控制台、agent.log、trace.jsonl\n各阶段耗时、失败原因、重试次数、未确认步骤"),
+        ],
+        labels=["② 决策", "无候选", "① 感知", "③ 执行", "⓪ 能直接启动的应用先启动", "④ 前后画面"],
+        sub_size=8.2, out="fig_architecture.png"),
+    "en": dict(
+        user="User instruction",
+        boxes=[
+            ("Planner", "planner.py\nsplits on sequence\nwords (LLM optional)"),
+            ("Executor", "executor.py\nstep-by-step execution\nfailure types, retry, re-plan"),
+            ("Decision", "matcher.py: rules first\nscore clicks / find input box\nLLM only if no match"),
+            ("LLM fallback", "agent.py: LLaVA (Ollama)\nagent_lora.py: Qwen2.5-1.5B\n+ LoRA adapter (week 5)"),
+            ("Screen perception", "perceiver.py: screenshot, DPI-aware\nadaptive downscaling\nEasyOCR / PaddleOCR\nSet-of-Mark IDs, fingerprint cache"),
+            ("Action execution", "controller.py\nclick, type (non-ASCII via clipboard)\nhotkey, scroll, wait (week 8)\nFAILSAFE emergency stop"),
+            ("System commands (Tool Use)", "find_app_command\n\"open notepad\" → notepad\nfalls back to vision on failure"),
+            ("Verification", "before/after screen fingerprint (cell count, dynamic regions masked)\nafter typing, check the text appears on screen (else mark unverified)"),
+            ("Monitoring & logging", "monitor.py: console, agent.log, trace.jsonl\nstage timings, failure reasons, retries, unverified steps"),
+        ],
+        labels=["② decide", "no match", "① perceive", "③ act", "⓪ launch known apps directly", "④ before/after"],
+        sub_size=7.8, out="fig_architecture_en.png"),
+}
+
+
+def fig_architecture(lang="zh"):
+    T = ARCH_TEXT[lang]
     fig, ax = plt.subplots(figsize=(11, 6.6))
     ax.set_xlim(0, 110)
     ax.set_ylim(0, 71)
     ax.axis("off")
 
-    def box(x, y, w, h, title, sub, color):
+    def box(x, y, w, h, i, color):
+        title, sub = T["boxes"][i]
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.4,rounding_size=1.2",
                                     fc="white", ec=color, lw=1.8))
         ax.text(x + w / 2, y + h - 2.2, title, ha="center", va="top", fontsize=11, fontweight="bold", color=INK)
-        ax.text(x + w / 2, y + h - 6.4, sub, ha="center", va="top", fontsize=8.2, color=MUTED, linespacing=1.5)
+        ax.text(x + w / 2, y + h - 6.4, sub, ha="center", va="top", fontsize=T["sub_size"], color=MUTED,
+                linespacing=1.5)
 
     def arrow(x1, y1, x2, y2, color=INK, ls="-"):
         ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>", mutation_scale=12,
                                      color=color, lw=1.3, linestyle=ls))
 
-    def label(x, y, t, color=INK):
-        ax.text(x, y, t, ha="center", va="center", fontsize=8, color=color,
+    def label(x, y, i, color=INK):
+        ax.text(x, y, T["labels"][i], ha="center", va="center", fontsize=8, color=color,
                 bbox=dict(fc="white", ec="none", pad=0.6))
 
-    ax.text(11, 69.6, "用户指令", ha="center", fontsize=10, color=MUTED)
-    box(2, 48, 18, 17, "任务拆解", "planner.py\n规则拆分顺序连接词\n长指令可交大模型拆", BLUE)
-    box(26, 48, 22, 17, "执行器", "executor.py\n逐步执行、失败分类\n退避重试、重新规划", BLUE)
-    box(54, 48, 22, 17, "决策（双轨）", "matcher.py 规则优先\n点击打分 / 找输入框\n规则无候选才问大模型", BLUE)
-    box(82, 48, 26, 17, "大模型兜底", "agent.py：LLaVA（Ollama）\nagent_lora.py：Qwen2.5-1.5B\n+ LoRA 适配器（第5周）", ORANGE)
+    ax.text(11, 69.6, T["user"], ha="center", fontsize=10, color=MUTED)
+    box(2, 48, 18, 17, 0, BLUE)
+    box(26, 48, 22, 17, 1, BLUE)
+    box(54, 48, 22, 17, 2, BLUE)
+    box(82, 48, 26, 17, 3, ORANGE)
 
-    box(2, 22, 30, 19, "屏幕感知", "perceiver.py\n截图（mss）、DPI 感知、自适应降采样\nEasyOCR / PaddleOCR\nSet-of-Mark 编号、画面指纹缓存", GREEN)
-    box(40, 22, 30, 19, "动作执行", "controller.py\n点击、输入（中文走剪贴板）\n按键、滚动、等待（第8周）\nFAILSAFE 紧急停止", GREEN)
-    box(78, 22, 30, 19, "系统命令（Tool Use）", "find_app_command\n“打开记事本” → notepad\n启动失败自动改走视觉", GREEN)
+    box(2, 22, 30, 19, 4, GREEN)
+    box(40, 22, 30, 19, 5, GREEN)
+    box(78, 22, 30, 19, 6, GREEN)
 
-    box(2, 2, 50, 13, "验证", "画面指纹前后对比（格子计数，可屏蔽动态区域）\n输入后复查屏幕上有没有输入的内容（没有就标记未确认）", RED)
-    box(58, 2, 50, 13, "监控与日志", "monitor.py：控制台、agent.log、trace.jsonl\n各阶段耗时、失败原因、重试次数、未确认步骤", MUTED)
+    box(2, 2, 50, 13, 7, RED)
+    box(58, 2, 50, 13, 8, MUTED)
 
     arrow(11, 68.8, 11, 65.6)
     arrow(20.4, 56.5, 25.6, 56.5)
     arrow(48.4, 56.5, 53.6, 56.5)
-    label(51, 59.5, "② 决策")
+    label(51, 59.5, 0)
     arrow(76.4, 56.5, 81.6, 56.5, ORANGE)
-    label(79, 59.5, "无候选", ORANGE)
+    label(79, 59.5, 1, ORANGE)
     arrow(31, 47.6, 20, 41.4)
-    label(23, 45.2, "① 感知")
+    label(23, 45.2, 2)
     arrow(62, 47.6, 56, 41.4)
-    label(62.5, 44.5, "③ 执行")
+    label(62.5, 44.5, 3)
     arrow(46, 47.6, 86, 41.4, MUTED, "--")
-    label(78, 46.2, "⓪ 能直接启动的应用先启动", MUTED)
+    label(78, 46.2, 4, MUTED)
     arrow(17, 21.6, 17, 15.4)
-    label(23.5, 18.5, "④ 前后画面")
+    label(24, 18.5, 5)
     arrow(55, 21.6, 42, 15.4)
     arrow(52.4, 8.5, 57.6, 8.5)
-    _save(fig, "fig_architecture.png")
+    _save(fig, T["out"])
 
 
 def fig_timeline():
@@ -220,12 +261,13 @@ def fig_week8():
 
 def main():
     fig_architecture()
+    fig_architecture("en")
     fig_timeline()
     fig_week4()
     fig_threshold()
     fig_downscale()
     fig_week8()
-    print("已输出到", OUT, sorted(os.listdir(OUT)))
+    print("written to", OUT, sorted(os.listdir(OUT)))
 
 
 if __name__ == "__main__":

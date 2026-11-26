@@ -1,6 +1,9 @@
-"""训练/评估共用的东西：三套提示词、消息构造、输出解析、打分，还有固定的 50 题评测集。
+"""Shared by training and evaluation: three prompt versions, message construction, output parsing, scoring,
+and the fixed 50-instruction evaluation set (hard50).
 
-提示词 v1 是 gui_agent/agent.py 里原来的那份（基线），v2 是改过的，ft 是微调用的极简版。
+Prompt v1 is the original one from gui_agent/agent.py (baseline), v2 is the revised one, and ft is the minimal
+prompt used for fine-tuning. The prompts, instructions and screen texts are Chinese and functional - they are
+exactly what the models were trained and evaluated on.
 """
 import json
 import re
@@ -10,7 +13,7 @@ def _valid_id_str(valid_ids):
 
 
 def system_prompt_v1(valid_ids):
-    """和 gui_agent/agent.py 里的 system_prompt 一致，当基线。"""
+    """Same as the system_prompt in gui_agent/agent.py; the baseline."""
     valid_id_str = _valid_id_str(valid_ids)
     return f"""你是一个极其精确的 GUI 自动化控制中心。
         请仔细观察屏幕截图，并严格对照提供的元素字典。
@@ -37,7 +40,7 @@ def system_prompt_v1(valid_ids):
 
 
 def system_prompt_v2(valid_ids):
-    """优化版：写清规则、给了几个示例、只要 JSON。"""
+    """Revised: explicit rules, a few examples, JSON only."""
     valid_id_str = _valid_id_str(valid_ids)
     return f"""你是桌面 GUI 自动化决策器。
 输入：屏幕 OCR 得到的元素字典（id -> 文字与坐标）和一条用户指令。
@@ -66,13 +69,13 @@ def system_prompt_v2(valid_ids):
 
 
 def system_prompt_ft(valid_ids):
-    """微调用的极简提示词，训练和推理两边必须一模一样。"""
+    """Minimal prompt used for fine-tuning; training and inference must use exactly the same text."""
     return ("你是 GUI 自动化决策器。根据元素字典和用户指令，只输出一个 JSON 动作。"
             f"target_id 必须来自合法 ID：[{_valid_id_str(valid_ids)}]。")
 
 
 def user_message(elements, instruction):
-    """和 agent.py 里发给模型的文本部分保持一致。"""
+    """Kept identical to the text part that agent.py sends to the model."""
     return f"元素字典：\n{json.dumps(elements, ensure_ascii=False)}\n\n指令：{instruction}"
 
 
@@ -85,7 +88,7 @@ def answer_json(target):
 
 
 def build_messages(rec, prompt="ft", with_answer=False, include_valid_ids=True):
-    """rec 是一条数据，返回 chat messages。"""
+    """rec is one sample; returns chat messages."""
     valid = rec["valid_ids"] if include_valid_ids else None
     sys_fn = {"v1": system_prompt_v1, "v2": system_prompt_v2, "ft": system_prompt_ft}[prompt]
     msgs = [
@@ -98,7 +101,7 @@ def build_messages(rec, prompt="ft", with_answer=False, include_valid_ids=True):
 
 
 def parse_decision(raw):
-    """容错解析：```json 代码块、纯 JSON、夹在文字里的 JSON 都认，解析不了返回 None。"""
+    """Lenient parsing: accepts a ```json block, bare JSON, or JSON embedded in text; returns None if nothing parses."""
     if raw is None:
         return None
     s = str(raw).strip()
@@ -130,7 +133,7 @@ def _norm_text(s):
 
 
 def score_case(decision, rec):
-    """单条打分，rec["target"] 是标准答案。"""
+    """Score one sample; rec["target"] is the reference answer."""
     exp = rec["target"]
     valid = set(int(i) for i in rec["valid_ids"])
     out = {"json_valid": False, "action_ok": False, "id_ok": False,
@@ -185,8 +188,8 @@ def save_jsonl(path, records):
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
 
-# 固定评测集 hard50：第 4 周压测用的那 50 条。
-# 这些指令原文会从训练集里剔掉，保证模型没见过。
+# Fixed evaluation set hard50: the 50 instructions from the week-4 stress test.
+# These exact instructions are excluded from the training data, so the model has never seen them.
 
 MOCK_ELEMENTS = {
     10: {"text": "Google Chrome", "center": [100, 100]},
@@ -199,7 +202,7 @@ MOCK_ELEMENTS = {
     51: {"text": "Exit", "center": [1900, 40]},
 }
 
-# (指令, 动作, 目标 id, 期望输入文本；None 表示不检查文本)
+# (instruction, action, target id, expected text; None = text not checked)
 HARD50 = [
     ("点击 Google Chrome", "click", 10, None), ("打开 Edge 浏览器", "click", 11, None),
     ("进入 Google Chrome", "click", 10, None), ("寻找 Microsoft Edge", "click", 11, None),

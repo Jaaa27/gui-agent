@@ -1,6 +1,7 @@
 """
-按 main.py（v1）里的代码原样复刻"规则路由"这一段，用来和 v2 做对比。
-对应 main.py 的 Tool Use 拦截器 + 关键词清洗 + 两轮匹配。不含大模型调用。
+A verbatim copy of the "rule routing" part of the original main.py (v1), kept for comparison with v2:
+the v1 tool-use interceptor + keyword cleaning + two-pass matching. No LLM calls.
+The Chinese word lists are v1's functional keyword lists.
 """
 V1_TOOL = {"chrome": "start chrome", "edge": "start msedge", "记事本": "notepad", "计算器": "calc"}
 V1_STOP = ["点击", "打开", "进入", "搜索", "寻找", "标签页", "图标", "按钮", "链接", "文本", "文字",

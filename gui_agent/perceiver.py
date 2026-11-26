@@ -1,14 +1,14 @@
-"""屏幕感知：截图 -> OCR -> 给每段文字编号（Set-of-Mark）。
+"""Screen perception: screenshot -> OCR -> number every text block (Set-of-Mark).
 
-和最早的 ScreenPerceiver 接口一样，scan_screen() 返回 (标注图路径, {id: {"text", "center"}})。
-easyocr / mss 都是用到才 import，这样没装也能 import 本模块，测试里直接塞假的 reader 进来。
+Same interface as the original ScreenPerceiver: scan_screen() returns (annotated image path, {id: {"text", "center"}}).
+easyocr / mss are imported lazily, so this module imports without them and tests can inject a fake reader.
 
-第 8 周加的三件事：
-  * max_side="auto"：按系统缩放比例算缩放系数，保证缩小后界面字号不低于 MIN_FONT_PX
-    （第 6 周的实验里，缩小后字号低于约 13 像素召回率开始明显下降）
-  * 画面指纹可以屏蔽一部分格子：calibrate() 在静止屏幕上找出自己会变的区域（视频、动图、时钟），
-    或者用 ignore_regions 手动指定，比较画面变化时跳过这些格子
-  * OCR 引擎可选 PaddleOCR（engine="paddle"），输出转成和 EasyOCR 一样的格式
+Added in week 8:
+  * max_side="auto": the downscale factor is derived from the display scale so that UI text stays at least MIN_FONT_PX
+    (in the week-6 study, recall dropped clearly once text fell below about 13 px)
+  * the screen signature can mask cells: calibrate() finds regions that change on their own on an idle screen
+    (video, animations, the clock), or ignore_regions sets them by hand; masked cells are skipped when comparing
+  * PaddleOCR as an optional engine (engine="paddle"), its output converted to the EasyOCR format
 """
 import math
 import os
@@ -19,9 +19,9 @@ import numpy as np
 
 
 def enable_dpi_awareness():
-    """Windows 上开启 DPI 感知，要赶在第一次截图和创建 pyautogui 之前调用。
+    """Enable DPI awareness on Windows. Must be called before the first screenshot and before pyautogui is created.
 
-    不开的话，系统缩放 125%/150% 时截图像素和鼠标坐标对不上，点击会整体偏。
+    Without it, at 125%/150% display scaling the screenshot pixels and mouse coordinates disagree and every click is offset.
     """
     if os.name != "nt":
         return False
@@ -38,10 +38,10 @@ def enable_dpi_awareness():
 
 
 def system_ui_scale():
-    """Windows 的显示缩放比例（125% 返回 1.25），拿不到返回 None。
+    """Windows display scale (1.25 for 125%), or None if it cannot be read.
 
-    开了 DPI 感知以后 pyautogui.size() 返回的就是物理像素，没法再用"截图宽 / 逻辑宽"推出缩放比例，
-    所以直接问系统。GetDpiForSystem 要 Win10 1607 以上。
+    Once DPI awareness is on, pyautogui.size() returns physical pixels, so the scale can no longer be derived from
+    "screenshot width / logical width"; we ask the system instead. GetDpiForSystem needs Windows 10 1607 or later.
     """
     if os.name != "nt":
         return None
@@ -52,15 +52,15 @@ def system_ui_scale():
         return None
 
 
-BASE_FONT_PX = 12      # Windows 100% 缩放下界面文字（9 号 Segoe UI）大约 12 像素
-MIN_FONT_PX = 13       # 缩小后希望保住的字号
+BASE_FONT_PX = 12      # UI text (9 pt Segoe UI) is about 12 px at 100% scaling
+MIN_FONT_PX = 13       # text size to keep after downscaling
 
 
 def paddle_to_easyocr(result):
-    """PaddleOCR 的输出转成 EasyOCR 的 [(四点框, 文字, 置信度), ...]。
+    """Convert PaddleOCR output to EasyOCR's [(4-point box, text, confidence), ...].
 
-    2.x 的 ocr() 返回 [[ [框, (文字, 分数)], ... ]]（每张图一个列表，没识别到是 [None]）；
-    3.x 的 predict() 返回每张图一个类字典对象，字段是 rec_texts / rec_scores / rec_polys。两种都认。
+    2.x ocr() returns [[ [box, (text, score)], ... ]] (one list per image, [None] if nothing was found);
+    3.x predict() returns one dict-like object per image with rec_texts / rec_scores / rec_polys. Both are handled.
     """
     out = []
     if not result:
@@ -84,7 +84,7 @@ def paddle_to_easyocr(result):
 
 
 class PaddleReader:
-    """包一层，让 PaddleOCR 有和 easyocr.Reader 一样的 readtext()。"""
+    """Wrapper that gives PaddleOCR the same readtext() as easyocr.Reader."""
 
     def __init__(self, lang="ch", ocr=None):
         if ocr is None:
@@ -101,11 +101,11 @@ class ScreenPerceiver:
     def __init__(self, langs=("en", "ch_sim"), max_side="auto", min_conf=0.3, use_gpu=None,
                  cache=True, sig_size=(64, 36), cell_delta=6, min_cells=3, ignore_regions=None,
                  logical_size=None, reader=None, capture_fn=None, engine="easyocr", ui_scale=None):
-        # max_side: OCR 之前把长边缩到这个像素以内，0 就是不缩，"auto" 按系统缩放比例自己算
-        # cell_delta / min_cells: 指纹里灰度差超过 cell_delta 的格子数达到 min_cells 才算画面变了
-        #   取值依据见 scripts/study_threshold.py 和第 6 周报告 3.4 节
-        # logical_size: pyautogui 认为的屏幕大小，不传就自己去问
-        # reader / capture_fn: 只给测试用
+        # max_side: downscale the long side to at most this many pixels before OCR; 0 = never, "auto" = from the display scale
+        # cell_delta / min_cells: the screen counts as changed when at least min_cells signature cells differ by more than cell_delta
+        #   see scripts/study_threshold.py and section 3.4 of the week-6 report for how these were chosen
+        # logical_size: screen size as pyautogui sees it; queried if not given
+        # reader / capture_fn: for tests only
         enable_dpi_awareness()
         self.max_side = max_side
         self.min_conf = min_conf
@@ -113,8 +113,8 @@ class ScreenPerceiver:
         self.sig_size = sig_size
         self.cell_delta = cell_delta
         self.min_cells = min_cells
-        self.mask = None               # 和指纹一样大的 bool 数组，True 的格子不参与比较
-        self.ui_scale = ui_scale       # 系统缩放比例，不传就去问系统
+        self.mask = None               # bool array the size of the signature; True cells are ignored
+        self.ui_scale = ui_scale       # display scale; queried from the system if not given
         self._capture_fn = capture_fn
         if reader is None:
             reader = PaddleReader() if engine == "paddle" else self._make_reader(langs, use_gpu)
@@ -123,7 +123,7 @@ class ScreenPerceiver:
             self.add_ignore_regions(ignore_regions)
         self._logical_size = logical_size
         self._last_sig = None
-        self._last = None          # (标注图, 元素字典)，画面没变时直接复用
+        self._last = None          # (annotated image, element dict), reused while the screen is unchanged
         self.last_timing = {}
 
     @staticmethod
@@ -143,20 +143,20 @@ class ScreenPerceiver:
                 import pyautogui
                 self._logical_size = tuple(pyautogui.size())
             except Exception:
-                self._logical_size = False      # 问不到就别再问了
+                self._logical_size = False      # could not get it; don't ask again
         return self._logical_size or None
 
-    # ---- 截图和画面指纹 ----
+    # ---- screenshot and screen signature ----
     def capture_screen(self):
         if self._capture_fn is not None:
             return self._capture_fn()
         import mss
         with mss.mss() as sct:
-            shot = sct.grab(sct.monitors[1])      # 主屏幕
+            shot = sct.grab(sct.monitors[1])      # primary monitor
             return cv2.cvtColor(np.array(shot), cv2.COLOR_BGRA2BGR)
 
     def signature_of(self, img):
-        # 缩成 64x36 的灰度图当指纹，用来判断画面变没变
+        # Shrink to a 64x36 grayscale image as the signature used to tell whether the screen changed
         g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
         return cv2.resize(g, self.sig_size, interpolation=cv2.INTER_AREA).astype(np.float32)
 
@@ -164,7 +164,7 @@ class ScreenPerceiver:
         return self.signature_of(self.capture_screen())
 
     def add_ignore_regions(self, regions):
-        """regions 是 [(x1, y1, x2, y2), ...]，用 0~1 的相对坐标，比如任务栏右下角的时钟。"""
+        """regions is [(x1, y1, x2, y2), ...] in 0..1 relative coordinates, e.g. the clock in the bottom-right of the taskbar."""
         h, w = self.sig_size[1], self.sig_size[0]
         if self.mask is None:
             self.mask = np.zeros((h, w), bool)
@@ -174,9 +174,9 @@ class ScreenPerceiver:
             self.mask[max(r1, 0):min(r2, h), max(c1, 0):min(c2, w)] = True
 
     def calibrate(self, frames=8, gap=0.3, sleep=time.sleep):
-        """屏幕不动的时候连续取几帧指纹，自己在变的格子（视频、动图）以后不参与比较。
+        """Take several signatures of an idle screen; cells that change on their own (video, animations) are ignored from then on.
 
-        变化的格子会向外扩一格，因为动态内容的边缘在相邻格子里也会抖。返回屏蔽了多少格。
+        Changed cells are dilated by one cell, because the edges of dynamic content flicker in neighbouring cells. Returns the number of masked cells.
         """
         sigs = []
         for i in range(frames):
@@ -193,23 +193,23 @@ class ScreenPerceiver:
         return int(self.mask.sum())
 
     def signature_changed(self, a, b):
-        # 不用全图平均差：小面积的变化（弹出菜单只占 4% 的画面）会被平均掉，
-        # 反而是调大阈值之后把真正的变化当成"没反应"
+        # Not a whole-image mean difference: a small change (a popup menu covering 4% of the screen) gets averaged away,
+        # and raising the threshold to compensate then reports real changes as "no effect"
         d = np.abs(a - b) > self.cell_delta
         if self.mask is not None and self.mask.shape == d.shape:
             d &= ~self.mask
         return int(np.sum(d)) >= self.min_cells
 
     def invalidate(self):
-        """点击/输入之后调一下，保证下一次扫描不吃缓存。"""
+        """Call after a click/type so the next scan does not use the cache."""
         self._last_sig = None
         self._last = None
 
     # ---- OCR ----
     def auto_max_side(self, img_shape):
-        """按系统缩放比例算长边上限：界面字号约 BASE_FONT_PX * 缩放比例，缩小后要不低于 MIN_FONT_PX。
+        """Long-side limit from the display scale: UI text is about BASE_FONT_PX * scale and must stay >= MIN_FONT_PX after downscaling.
 
-        100% 缩放时字号只有 12 像素，本来就低于 13，所以不缩；150% 的 4K 屏可以缩到 0.72。
+        At 100% the text is only 12 px, already below 13, so no downscaling; a 4K screen at 150% can go down to 0.72.
         """
         h, w = img_shape[:2]
         dpi = self.ui_scale or system_ui_scale()
@@ -229,7 +229,7 @@ class ScreenPerceiver:
         return small, scale
 
     def _to_screen_coords(self, x, y, scale, img_shape):
-        # OCR 图上的坐标 -> 原截图像素 -> pyautogui 坐标
+        # OCR image coordinates -> original screenshot pixels -> pyautogui coordinates
         px, py = x / scale, y / scale
         ls = self._screen_logical_size()
         if ls:
@@ -251,7 +251,7 @@ class ScreenPerceiver:
             xs = [p[0] for p in bbox]
             ys = [p[1] for p in bbox]
             x1, y1, x2, y2 = min(xs) / scale, min(ys) / scale, max(xs) / scale, max(ys) / scale
-            eid = len(elements)       # 过滤完再编号，id 是连续的
+            eid = len(elements)       # number after filtering, so IDs are contiguous
             cx, cy = self._to_screen_coords((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, scale, img.shape)
             if draw:
                 cv2.rectangle(marked, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255), 2)

@@ -15,7 +15,7 @@ from gui_agent.executor import find_app_command
 
 
 class FakeReader:
-    """返回固定结果；记录收到的图像尺寸，用来验证降采样。bbox 按收到图像的 1/2 位置给。"""
+    """Returns a fixed result and records the image size it received, to test downscaling. The bbox sits at the centre of the received image."""
     def __init__(self, boxes):
         self.boxes, self.seen = boxes, []
     def readtext(self, img):
@@ -56,7 +56,7 @@ class TestMatcher(unittest.TestCase):
         els = {1: {"text": "搜索"}, 2: {"text": "Search Google or type a URL"}, 3: {"text": "输入聊天信息..."}}
         self.assertEqual(find_input_boxes("搜索 天气", els, "天气")[0]["id"], 2)
     def test_hard50_actions_all_correct(self):
-        # 只检查动作类型（点击/输入）和输入文本；id 选择在 run_routing_eval 里统计
+        # Only the action type (click/type) and the typed text are checked here; ID choice is measured in run_routing_eval
         for ins, act, tid, text in HARD50:
             self.assertEqual(detect_intent(ins), act, ins)
             if text is not None:
@@ -96,7 +96,7 @@ class TestPlanner(unittest.TestCase):
 class TestPerceiver(unittest.TestCase):
     def make(self, img_hw=(2160, 3840), **kw):
         h, w = img_hw
-        # 在 OCR 图中央放一个 100x40 的框
+        # a 100x40 box in the centre of the OCR image
         def boxes(shape):
             sh, sw = shape
             cx, cy = sw // 2, sh // 2
@@ -110,7 +110,7 @@ class TestPerceiver(unittest.TestCase):
         p, reader, img = self.make(max_side=1600)
         path, els = p.scan_screen(os.path.join(tempfile.mkdtemp(), "o.png"))
         self.assertEqual(max(reader.seen[0]), 1600)
-        self.assertEqual(list(els), [0])                     # 低置信与空文本被过滤，编号连续
+        self.assertEqual(list(els), [0])                     # low-confidence and empty texts filtered, IDs contiguous
         cx, cy = els[0]["center"]
         self.assertLessEqual(abs(cx - 1920), 2); self.assertLessEqual(abs(cy - 1080), 2)
     def test_no_downscale(self):
@@ -118,7 +118,7 @@ class TestPerceiver(unittest.TestCase):
         p.scan_screen(os.path.join(tempfile.mkdtemp(), "o.png"))
         self.assertEqual(reader.seen[0], (2160, 3840))
     def test_dpi_scaling(self):
-        # 截图 3840x2160，但 PyAutoGUI 认为屏幕是 2560x1440（150% 缩放）
+        # screenshot is 3840x2160, but PyAutoGUI thinks the screen is 2560x1440 (150% scaling)
         p, _, _ = self.make(max_side=0, logical_size=(2560, 1440))
         _, els = p.scan_screen(os.path.join(tempfile.mkdtemp(), "o.png"))
         self.assertEqual(els[0]["center"], (1280, 720))
@@ -132,11 +132,11 @@ class TestPerceiver(unittest.TestCase):
     def test_signature_change_detection(self):
         p, _, _ = self.make(img_hw=(360, 640), max_side=0)
         a = np.zeros((360, 640, 3), np.uint8); b = a.copy(); b[:, :320] = 255
-        c = a.copy(); cv2.circle(c, (5, 5), 2, (255, 255, 255), -1)       # 极小的变化（像光标闪烁）
+        c = a.copy(); cv2.circle(c, (5, 5), 2, (255, 255, 255), -1)       # a tiny change (like a blinking caret)
         sa = p.signature_of(a)
         self.assertTrue(p.signature_changed(sa, p.signature_of(b)))
         self.assertFalse(p.signature_changed(sa, p.signature_of(c)))
-        d = a.copy(); d[100:200, 200:290] = 255                           # 弹出菜单大小的变化，只占画面 4%
+        d = a.copy(); d[100:200, 200:290] = 255                           # a popup-menu-sized change, only 4% of the screen
         self.assertTrue(p.signature_changed(sa, p.signature_of(d)))
     def test_changed_frame_invalidates_cache(self):
         state = {"img": np.zeros((360, 640, 3), np.uint8)}
@@ -162,7 +162,7 @@ class TestController(unittest.TestCase):
         self.assertIn("hotkey", [x[0] for x in PG.calls]); self.assertEqual(PC.store, "旧剪贴板")
     def test_missing_pyperclip_returns_false(self):
         saved = sys.modules.pop("pyperclip")
-        sys.modules["pyperclip"] = None            # 让 import 抛 ImportError
+        sys.modules["pyperclip"] = None            # make the import raise ImportError
         try:
             self.assertFalse(self.c.type_text("你好"))
         finally:
@@ -200,7 +200,7 @@ class TestLogging(unittest.TestCase):
     def test_trace_write_failure_does_not_raise(self):
         m = TaskMonitor(logging.getLogger("t2"), trace_path=None)
         m.trace_path = "/proc/nonexistent_dir/t.jsonl"
-        m.task_id = "x"; m._emit(ev="x")       # 不应抛出
+        m.task_id = "x"; m._emit(ev="x")       # must not raise
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
-"""用 PEFT 给 GUI 决策任务做 LoRA 微调。
+"""LoRA fine-tuning (PEFT) for the GUI decision task.
 
-输入是 system（合法 id）+ user（OCR 元素字典和指令），输出是一段 JSON 动作。
-loss 只算 assistant 回答的部分，prompt 部分的 label 设成 -100。
+Input: system (valid IDs) + user (OCR element dict and instruction); output: one JSON action.
+The loss only covers the assistant answer; prompt tokens get label -100.
 
-默认基座 Qwen2.5-1.5B-Instruct，Colab T4 能直接跑，显存紧就加 --load_4bit。
+Default base model: Qwen2.5-1.5B-Instruct, which runs on a Colab T4; add --load_4bit if memory is tight.
 
     python -m training.train_lora --data data --out outputs/lora_gui
     python -m training.train_lora --data data --out outputs/lora_gui --load_4bit --merge
@@ -60,8 +60,8 @@ def main():
     ap.add_argument("--r", type=int, default=16)
     ap.add_argument("--alpha", type=int, default=32)
     ap.add_argument("--dropout", type=float, default=0.05)
-    ap.add_argument("--load_4bit", action="store_true", help="QLoRA：4bit 量化加载基座模型（需 bitsandbytes）")
-    ap.add_argument("--merge", action="store_true", help="训练后额外导出合并后的完整模型（供 Ollama/GGUF 转换）")
+    ap.add_argument("--load_4bit", action="store_true", help="QLoRA: load the base model in 4-bit (needs bitsandbytes)")
+    ap.add_argument("--merge", action="store_true", help="also export the merged full model after training (for Ollama/GGUF conversion)")
     ap.add_argument("--seed", type=int, default=42)
     a = ap.parse_args()
 
@@ -74,7 +74,7 @@ def main():
     dtype = torch.bfloat16 if bf16_ok else (torch.float16 if use_cuda else torch.float32)
     print(f"[env] cuda={use_cuda} dtype={dtype} base={a.base}")
     if not use_cuda:
-        print("[警告] 没检测到 GPU，训练会很慢，建议用 Colab 的 T4。")
+        print("[warning] no GPU detected; training will be very slow. A Colab T4 is recommended.")
 
     tok = AutoTokenizer.from_pretrained(a.base, trust_remote_code=True)
     if tok.pad_token is None:
@@ -102,7 +102,7 @@ def main():
         r=a.r, lora_alpha=a.alpha, lora_dropout=a.dropout, bias="none", task_type="CAUSAL_LM",
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"])
     model = get_peft_model(model, lora)
-    for p in model.parameters():          # fp16 训练要求可训练参数是 fp32
+    for p in model.parameters():          # fp16 training requires trainable parameters in fp32
         if p.requires_grad:
             p.data = p.data.float()
     model.print_trainable_parameters()
@@ -111,7 +111,7 @@ def main():
     val_recs = load_jsonl(os.path.join(a.data, "val.jsonl"))
     train_ds = SFTDataset(train_recs, tok, a.max_len)
     val_ds = SFTDataset(val_recs, tok, a.max_len)
-    print(f"[data] train={len(train_ds)} (丢弃超长 {train_ds.dropped}) val={len(val_ds)} (丢弃 {val_ds.dropped})")
+    print(f"[data] train={len(train_ds)} (dropped as too long: {train_ds.dropped}) val={len(val_ds)} (dropped: {val_ds.dropped})")
 
     steps_per_epoch = math.ceil(len(train_ds) / (a.batch * a.grad_accum))
     warmup_steps = max(1, int(0.05 * steps_per_epoch * a.epochs))
@@ -137,7 +137,7 @@ def main():
         greater_is_better=False,
         bf16=bf16_ok,
         fp16=(use_cuda and not bf16_ok),
-        gradient_checkpointing=False,     # 前面已经手动开了
+        gradient_checkpointing=False,     # already enabled manually above
         optim="paged_adamw_8bit" if a.load_4bit else "adamw_torch",
         report_to="none",
         seed=a.seed,
@@ -147,25 +147,25 @@ def main():
     ckpts = sorted(glob.glob(os.path.join(a.out, "checkpoints", "checkpoint-*")),
                    key=lambda p: int(p.rsplit("-", 1)[1]))
     if ckpts:
-        print(f"[resume] 从 {ckpts[-1]} 继续训练")
+        print(f"[resume] resuming from {ckpts[-1]}")
     result = trainer.train(resume_from_checkpoint=ckpts[-1] if ckpts else None)
 
-    trainer.save_model(a.out)             # 只存 LoRA 适配器，几十 MB
+    trainer.save_model(a.out)             # saves only the LoRA adapter (tens of MB)
     tok.save_pretrained(a.out)
     with open(os.path.join(a.out, "training_log.json"), "w", encoding="utf-8") as f:
         json.dump({"args": vars(a), "train_metrics": result.metrics, "log_history": trainer.state.log_history},
                   f, ensure_ascii=False, indent=2)
-    print(f"LoRA 适配器已保存到 {a.out}")
+    print(f"LoRA adapter saved to {a.out}")
 
     if a.merge:
         if a.load_4bit:
-            print("[提示] 4bit 加载的模型没法直接合并，去掉 --load_4bit 重新加载基座再 merge_and_unload。")
+            print("[note] a 4-bit model cannot be merged directly; reload the base without --load_4bit, then merge_and_unload.")
         else:
             merged = model.merge_and_unload()
             merged_dir = a.out.rstrip("/") + "_merged"
             merged.save_pretrained(merged_dir)
             tok.save_pretrained(merged_dir)
-            print(f"合并后的完整模型已保存到 {merged_dir}")
+            print(f"merged full model saved to {merged_dir}")
 
 
 if __name__ == "__main__":

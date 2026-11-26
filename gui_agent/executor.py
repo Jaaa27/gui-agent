@@ -1,23 +1,30 @@
-"""任务执行器：拆解 -> 逐步执行 -> 验证 -> 失败重试。
+"""Task executor: decompose -> run step by step -> verify -> retry on failure.
 
-单步的一次尝试大致是：（能用系统命令启动就先试）-> 感知 -> 决策（规则优先，
-大模型兜底）-> 执行 -> 看画面有没有变化。失败会归类成几种原因，重试时对症处理：
+One attempt at a step is: (launch via a system command if possible) -> perceive ->
+decide (rules first, LLM as fallback) -> act -> check that the screen changed.
+Failures are classified, and each retry handles its cause:
 
-  感知异常 / 没识别到文字   等一会儿再扫（页面可能还在加载）
-  规则没候选               交给大模型
-  大模型没输出/ID 不合法/超时  再问一次，试过的元素从字典里拿掉
-  控制器返回失败            同一个目标再试，连着失败两次就换目标
-  点了但画面没变            这个目标进黑名单，下次换下一个候选
+  perception error / no text found   wait and rescan (the page may still be loading)
+  no rule candidate                  ask the LLM
+  LLM gave nothing / bad ID / timed out  ask again, removing elements already tried
+  controller returned failure        retry the same target; switch after two failures
+  clicked but the screen didn't change   blacklist the target and try the next candidate
 
-候选全试过一遍就清空黑名单重来，有些点击只是偶尔没生效。
-注意"画面变了"不等于"点对了"，这个验证只能挡住点空的情况。所以输入类步骤做完后
-还会再扫一次屏幕，看输入的内容有没有出现；没出现只标记 unverified，不重试（重试会重复输入）。
+Once every candidate has been tried, the blacklist is cleared, because some clicks
+only fail intermittently.
 
-按键、滚动、等待这三种动作不需要找目标，直接执行（route=direct）。按键和滚动不一定改变画面，
-画面没变也不重试，只标记 unverified，免得 Ctrl+V 之类的被执行两次。
+"The screen changed" does not mean "the right thing was clicked"; it only catches
+clicks that hit nothing. So after a type step the screen is scanned again to check
+that the typed text appears. If it doesn't, the step is marked unverified but NOT
+retried, since a retry would type the text twice.
 
-步骤最终失败后的处理由 on_step_fail 决定：abort 停止、continue 接着做、
-replan 把当前屏幕上的文字和失败原因交给 replanner（一般是大模型）重新规划剩下的步骤。
+Hotkeys, scrolling and waiting need no target and run directly (route=direct).
+Hotkeys and scrolling don't always change the screen, so no change is also only
+marked unverified, so that something like Ctrl+V is never executed twice.
+
+What happens after a step finally fails is set by on_step_fail: "abort" stops,
+"continue" carries on, and "replan" hands the current screen text and the failure
+reason to a replanner (usually the LLM) to plan the remaining steps.
 """
 import concurrent.futures
 import os
@@ -32,7 +39,7 @@ from .matcher import (candidate_keywords, detect_intent, extract_payload, find_i
 from .monitor import TaskMonitor
 from .planner import Step, TaskPlanner
 
-# 失败原因
+# Failure reasons
 PERCEPTION_ERROR = "perception_error"
 NO_ELEMENTS = "no_elements"
 NO_CANDIDATE = "no_candidate"
@@ -45,7 +52,8 @@ UNEXPECTED = "unexpected"
 BUDGET = "budget_exceeded"
 SKIPPED = "skipped"
 
-# 可以直接用系统命令启动的应用（Windows）。key 是 normalize 之后的名字
+# Apps that can be launched directly with a system command (Windows).
+# Keys are names after matcher.normalize(); the Chinese keys are the Chinese app names.
 APP_COMMANDS = {
     "chrome": "start chrome", "googlechrome": "start chrome", "谷歌浏览器": "start chrome",
     "edge": "start msedge", "microsoftedge": "start msedge",
@@ -56,9 +64,9 @@ APP_COMMANDS = {
 
 
 def find_app_command(instruction):
-    """点击意图 + 关键词正好是某个应用名，才返回启动命令。
+    """Return a launch command only if the intent is "click" and a keyword is exactly an app name.
 
-    以前是 "chrome" in instruction，"搜索 chrome 插件"也会被当成启动 Chrome。
+    v1 used `"chrome" in instruction`, so "search for chrome extensions" also launched Chrome.
     """
     if detect_intent(instruction) != "click":
         return None
@@ -69,8 +77,16 @@ def find_app_command(instruction):
 
 
 def default_launcher(cmd):
+    """Start the command and return immediately.
+
+    The exit code is not used: explorer.exe returns 1 even when the window opens
+    (the real-machine evaluation caught this - every "open File Explorer" fell back to
+    the visual path). Whether the launch worked is decided by the screen-change check
+    in TaskExecutor instead.
+    """
     try:
-        return subprocess.run(cmd, shell=True, timeout=10).returncode == 0
+        subprocess.Popen(cmd, shell=True)
+        return True
     except Exception:
         return False
 
@@ -79,19 +95,19 @@ def default_launcher(cmd):
 class ExecConfig:
     max_retries: int = 3
     backoff: tuple = (0.5, 1.0, 2.0)
-    settle_delay: float = 0.8        # 动作做完等界面稳定再比较画面
-    focus_delay: float = 0.5         # 点完输入框等一会儿再打字
+    settle_delay: float = 0.8        # wait for the UI to settle before comparing screens
+    focus_delay: float = 0.5         # wait after clicking an input box before typing
     launch_delay: float = 2.0
     step_gap: float = 0.5
     verify: bool = True
     use_llm: bool = True
     llm_timeout: float = 60.0
     launch_enabled: bool = (os.name == "nt")
-    on_step_fail: str = "abort"      # abort：后面的步骤不做了；continue：继续做；replan：重新规划
+    on_step_fail: str = "abort"      # abort: skip the remaining steps; continue: keep going; replan: re-plan
     max_replans: int = 1
     task_budget_s: float = 300.0
-    direct_actions: bool = True      # 按键/滚动/等待直接执行；关掉就和第 7 周之前一样当成点击
-    verify_text: bool = True         # 输入后再扫一次屏，看输入的内容在不在
+    direct_actions: bool = True      # run hotkey/scroll/wait directly; off = treat them as clicks (pre-week-8 behaviour)
+    verify_text: bool = True         # after typing, rescan and check that the text appears
 
 
 @dataclass
@@ -102,7 +118,7 @@ class Outcome:
     detail: str = ""
     target_id: Optional[int] = None
     timings: dict = field(default_factory=dict)
-    unverified: bool = False        # 动作做了，但没法确认做对了
+    unverified: bool = False        # the action ran, but nothing confirmed it worked
 
 
 @dataclass
@@ -139,8 +155,8 @@ class TaskExecutor:
         self.monitor = monitor or TaskMonitor(trace_path=None)
         self.cfg = config or ExecConfig()
         self.launcher = launcher
-        self.sleep = sleep          # 测试里换成空函数，免得真的等
-        self.replanner = replanner  # (指令, 已完成步骤, 失败步骤, 失败原因, 屏幕文字) -> [步骤文字]
+        self.sleep = sleep          # tests pass a no-op so they don't actually wait
+        self.replanner = replanner  # (instruction, done steps, failed step, reason, screen texts) -> [step texts]
         self.log = self.monitor.log
         self._pool = concurrent.futures.ThreadPoolExecutor(max_workers=2)
 
@@ -151,7 +167,7 @@ class TaskExecutor:
         try:
             return fn()
         except Exception as e:
-            self.log.debug("读取画面指纹失败: %s", e)
+            self.log.debug("failed to read screen signature: %s", e)
             return None
 
     def _changed(self, a, b):
@@ -163,7 +179,7 @@ class TaskExecutor:
         try:
             return fut.result(timeout=self.cfg.llm_timeout)
         except concurrent.futures.TimeoutError:
-            # 卡住的线程杀不掉，换个新线程池，不然后面的调用要排在它后面
+            # A stuck thread can't be killed; use a fresh pool so later calls don't queue behind it
             self._pool.shutdown(wait=False)
             self._pool = concurrent.futures.ThreadPoolExecutor(max_workers=2)
             raise _LLMTimeout()
@@ -176,14 +192,14 @@ class TaskExecutor:
         return [str(v.get("text", "")) for v in elements.values()]
 
     def _direct(self, kind, arg, tm):
-        """按键 / 滚动 / 等待。"""
+        """Hotkey / scroll / wait."""
         cfg, ctrl = self.cfg, self.controller
         if kind == "wait":
             self.sleep(arg)
-            return Outcome(True, route="direct", detail=f"等待 {arg:g}s", timings=tm)
+            return Outcome(True, route="direct", detail=f"wait {arg:g}s", timings=tm)
         fn = getattr(ctrl, "hotkey" if kind == "hotkey" else "scroll", None)
         if fn is None:
-            return Outcome(False, ACTION_FAILED, route="direct", detail=f"控制器不支持 {kind}", timings=tm)
+            return Outcome(False, ACTION_FAILED, route="direct", detail=f"controller does not support {kind}", timings=tm)
         before = self._signature()
         t0 = time.perf_counter()
         if kind == "hotkey":
@@ -191,7 +207,7 @@ class TaskExecutor:
         else:
             direction, n = arg
             w, h = getattr(ctrl, "width", None), getattr(ctrl, "height", None)
-            x, y = (w // 2, h // 2) if w and h else (None, None)     # 滚屏幕中间那个窗口
+            x, y = (w // 2, h // 2) if w and h else (None, None)     # scroll the window in the middle of the screen
             ok, detail = fn(n if direction == "up" else -n, x, y), f"{direction} {n}"
         tm["act"] = time.perf_counter() - t0
         inval = getattr(self.perceiver, "invalidate", None)
@@ -204,8 +220,8 @@ class TaskExecutor:
             self.sleep(cfg.settle_delay)
             after = self._signature()
             if before is not None and after is not None and not self._changed(before, after):
-                # 已经滚到底、或者快捷键本来就没有可见效果，都会这样；不重试
-                self.log.info("  %s 之后画面没变化，标记为未确认", detail)
+                # Happens when already scrolled to the end, or the hotkey has no visible effect; don't retry
+                self.log.info("  screen unchanged after %s, marked unverified", detail)
                 unverified = True
         return Outcome(True, route="direct", detail=detail, timings=tm, unverified=unverified)
 
@@ -217,7 +233,7 @@ class TaskExecutor:
             if direct:
                 return self._direct(direct[0], direct[1], tm)
 
-        # 先试系统命令启动应用，失败了就走下面的视觉流程
+        # Try launching the app with a system command first; fall back to the visual path below
         if cfg.launch_enabled and not st["launch_tried"]:
             app = find_app_command(text)
             if app:
@@ -229,11 +245,11 @@ class TaskExecutor:
                     after = self._signature()
                     if (not cfg.verify or before is None or after is None or self._changed(before, after)):
                         return Outcome(True, route="tool_use", detail=app[1])
-                    self.log.warning("启动命令返回成功但画面没变化: %s，改走视觉路径", app[1])
+                    self.log.warning("launch command %r ran but the screen did not change; using the visual path", app[1])
                 else:
-                    self.log.warning("启动命令失败: %s，改走视觉路径", app[1])
+                    self.log.warning("launch command %r failed; using the visual path", app[1])
 
-        # 感知
+        # Perceive
         before = self._signature()
         t0 = time.perf_counter()
         try:
@@ -244,16 +260,16 @@ class TaskExecutor:
         if not elements:
             return Outcome(False, NO_ELEMENTS, timings=tm)
 
-        # 决策：规则优先
+        # Decide: rules first
         t0 = time.perf_counter()
         intent = detect_intent(text)
         if intent not in ("click", "type"):
-            intent = "click"          # direct_actions 关掉时，按第 7 周之前的做法当成点击
+            intent = "click"          # with direct_actions off, treat it as a click (pre-week-8 behaviour)
         payload = extract_payload(text) if intent == "type" else ""
         cands = find_input_boxes(text, elements, payload) if intent == "type" else rank_candidates(text, elements)
         usable = [c for c in cands if c["id"] not in st["tried"]]
         if cands and not usable:
-            self.log.info("候选都试过一遍了，清空黑名单再试最优的")
+            self.log.info("every candidate has been tried; clearing the blacklist and retrying the best one")
             st["tried"].clear()
             usable = cands
 
@@ -264,15 +280,17 @@ class TaskExecutor:
             if intent == "type":
                 decision["text"] = payload
                 if not payload:
-                    self.log.warning("指令里没抠出要输入的内容，只会点一下输入框")
+                    self.log.warning("no text to type was found in the instruction; the input box will only be clicked")
         elif cfg.use_llm and self.agent is not None:
             route = "llm"
-            # 超过 30 个字的基本是日志或段落，丢掉；试过的元素也去掉
+            # Texts of 30+ characters are almost always logs or paragraphs; drop them, and drop elements already tried
             pruned = {int(k): v for k, v in elements.items()
                       if 0 < len(str(v.get("text", ""))) < 30 and int(k) not in st["tried"]}
             if not pruned:
                 tm["decide"] = time.perf_counter() - t0
-                return Outcome(False, NO_CANDIDATE, route=route, detail="剪枝后没有可用元素", timings=tm)
+                return Outcome(False, NO_CANDIDATE, route=route, detail="no usable elements left after pruning", timings=tm)
+            # The hint is in Chinese to match the Chinese system prompt in agent.py:
+            # "Note: elements [...] were already tried with no effect; do not pick them again."
             hint = f"\n（注意：元素 {sorted(st['tried'])} 已经试过没有效果，不要再选。）" if st["tried"] else ""
             try:
                 raw = self._call_llm(text + hint, img, pruned, [str(k) for k in pruned])
@@ -301,10 +319,10 @@ class TaskExecutor:
             return Outcome(False, NO_CANDIDATE, route=route, timings=tm)
         tm["decide"] = time.perf_counter() - t0
 
-        # 执行。动手之前再确认一次 id 真的在字典里，防止乱点
+        # Act. Check once more that the ID is really in the dictionary so we never click at random
         tid = decision["target_id"]
         if tid not in elements:
-            return Outcome(False, LLM_INVALID, route=route, target_id=tid, detail="id 不在元素字典中", timings=tm)
+            return Outcome(False, LLM_INVALID, route=route, target_id=tid, detail="id not in the element dictionary", timings=tm)
         x, y = (int(round(v)) for v in elements[tid]["center"])
         t0 = time.perf_counter()
         try:
@@ -318,7 +336,7 @@ class TaskExecutor:
                     ok = self.controller.type_text(decision.get("text", ""), press_enter=True)
         except Exception as e:
             if type(e).__name__ == "FailSafeException":
-                raise                          # 紧急停止，别重试
+                raise                          # emergency stop - never retry
             tm["act"] = time.perf_counter() - t0
             return Outcome(False, ACTION_FAILED, route=route, target_id=tid, detail=repr(e), timings=tm)
         tm["act"] = time.perf_counter() - t0
@@ -327,12 +345,12 @@ class TaskExecutor:
             inval()
         if ok is False:
             st["fail_count"][tid] = st["fail_count"].get(tid, 0) + 1
-            if st["fail_count"][tid] >= 2:      # 同一个目标连着失败两次就换一个
+            if st["fail_count"][tid] >= 2:      # switch target after two failures in a row
                 st["tried"].add(tid)
             return Outcome(False, ACTION_FAILED, route=route, target_id=tid,
-                           detail=f"坐标({x},{y})", timings=tm)
+                           detail=f"coords ({x},{y})", timings=tm)
 
-        # 验证：前后画面指纹差得够不够大
+        # Verify: did the screen signature change enough?
         if cfg.verify:
             t0 = time.perf_counter()
             self.sleep(cfg.settle_delay)
@@ -342,7 +360,7 @@ class TaskExecutor:
                 st["tried"].add(tid)
                 return Outcome(False, NO_SCREEN_CHANGE, route=route, target_id=tid, timings=tm)
 
-        # 输入类：画面变了还不够，看输入的内容是不是真的出现在屏幕上
+        # Type steps: a changed screen is not enough; check the typed text is actually on screen
         unverified = False
         typed = decision.get("text", "") if decision["action"] == "type" else ""
         if cfg.verify_text and typed:
@@ -350,9 +368,9 @@ class TaskExecutor:
             try:
                 if not text_visible(typed, self._screen_texts()):
                     unverified = True
-                    self.log.warning("  输入后没在屏幕上找到 %r，标记为未确认", typed)
+                    self.log.warning("  typed text %r not found on screen, marked unverified", typed)
             except Exception as e:
-                self.log.debug("输入后的复查失败: %s", e)
+                self.log.debug("post-typing check failed: %s", e)
             tm["text_check"] = time.perf_counter() - t0
         return Outcome(True, route=route, target_id=tid, timings=tm, unverified=unverified)
 
@@ -383,7 +401,7 @@ class TaskExecutor:
                           last.route, elapsed, unverified=last.ok and last.unverified)
 
     def _replan(self, instruction, results, failed):
-        """让 replanner 根据当前屏幕重新规划剩下的步骤。不合格的结果一律丢掉。"""
+        """Ask the replanner for the remaining steps given the current screen. Invalid results are discarded."""
         try:
             texts = self._screen_texts()
         except Exception:
@@ -392,12 +410,12 @@ class TaskExecutor:
             cand = self.replanner(instruction, [r.text for r in results if r.ok], failed.text,
                                   failed.reason, texts)
         except Exception as e:
-            self.log.warning("重新规划失败: %s", e)
+            self.log.warning("re-planning failed: %s", e)
             return None
         if (isinstance(cand, list) and 1 <= len(cand) <= self.planner.max_steps
                 and all(isinstance(c, str) and c.strip() for c in cand)):
             return [c.strip() for c in cand]
-        self.log.warning("重新规划的结果不合格，放弃: %r", cand)
+        self.log.warning("re-planning returned an invalid result, ignoring it: %r", cand)
         return None
 
     def run(self, instruction):
@@ -406,12 +424,12 @@ class TaskExecutor:
         steps = self.planner.decompose(instruction)
         self.monitor.start_task(instruction, steps)
         results, ok_all, replans = [], True, 0
-        recovered_from = None        # 重新规划之后，只看新计划的步骤是否全部成功
+        recovered_from = None        # after a re-plan, only the new plan's steps decide success
         i = 0
         while i < len(steps):
             step = steps[i]
             if time.perf_counter() - t0 > cfg.task_budget_s:
-                self.log.error("任务超出时间预算 %.0fs，剩下的步骤跳过", cfg.task_budget_s)
+                self.log.error("task exceeded its %.0fs time budget; skipping the remaining steps", cfg.task_budget_s)
                 results += [StepResult(s.index, s.text, False, 0, BUDGET) for s in steps[i:]]
                 ok_all = False
                 break
@@ -428,13 +446,13 @@ class TaskExecutor:
                 new = self._replan(instruction, results, sr)
                 if new:
                     replans += 1
-                    self.log.info("步骤 %d 失败，重新规划出 %d 步: %s", step.index, len(new), new)
+                    self.log.info("step %d failed; re-planned %d new steps: %s", step.index, len(new), new)
                     steps = steps[:i + 1] + [Step(step.index + 1 + j, t) for j, t in enumerate(new)]
                     recovered_from = len(results)
                     i += 1
                     continue
             if cfg.on_step_fail in ("abort", "replan"):
-                self.log.error("步骤 %d 最终失败，后面 %d 步不做了", step.index, len(steps) - i - 1)
+                self.log.error("step %d failed; skipping the remaining %d step(s)", step.index, len(steps) - i - 1)
                 results += [StepResult(s.index, s.text, False, 0, SKIPPED) for s in steps[i + 1:]]
                 break
             i += 1

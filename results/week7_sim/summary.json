@@ -806,18 +806,18 @@
     },
     "failure_stage": {
       "sim-理想感知/允许系统启动": {
-        "感知": 0,
-        "决策": 1,
-        "执行": 0,
-        "验证": 0,
-        "其他": 0
+        "perception": 0,
+        "decision": 1,
+        "action": 0,
+        "verification": 0,
+        "other": 0
       },
       "sim-理想感知/仅视觉": {
-        "感知": 0,
-        "决策": 10,
-        "执行": 0,
-        "验证": 0,
-        "其他": 0
+        "perception": 0,
+        "decision": 10,
+        "action": 0,
+        "verification": 0,
+        "other": 0
       }
     },
     "failure_reason": {

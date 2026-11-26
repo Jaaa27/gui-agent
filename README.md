@@ -28,9 +28,31 @@ It was built as an 8-week internship project on multimodal-LLM GUI agents. The d
 | 18 adversarial instructions targeting v1's weaknesses | **18/18** (v1: 7/18) | e.g. "search chrome tutorial" must not launch Chrome |
 | Fault-injection scenarios | **26/26** pass | OCR crashes, missed text, failed clicks, LLM timeouts / hallucinated IDs, emergency stop |
 | 20-task simulation (ideal perception) | 19/20 with system launch, 10/20 vision only | an upper bound for the decision logic, **not** real-machine results |
-| Real-machine evaluation (in progress) | 10/18 runs on tasks T01–T06 | found a launcher bug, now fixed (see below) |
+| Real-machine evaluation, 20 tasks × 3 runs | **46/60 (76.7%, 95% CI 64.6–85.6%)** | 1920×1080 at 150%, LLaVA fallback, system launch allowed |
 
-The real-machine evaluation has so far covered 6 of the 20 tasks (3 runs each) on a 1920×1080 Windows PC. App launches through system commands (Calculator, Chrome, Edge) succeeded every time in about 2–3 s. It also exposed a real bug: `explorer.exe` returns exit code 1 even when it opens a window, so the executor treated "open File Explorer" as a failed launch and fell back to the visual path. The launcher now starts the command without checking the exit code, and success is judged by the screen-change check instead. The remaining tasks and the vision-only condition still need to be run; raw data is in `results/eval_runs.csv`, and statistics and charts are in `results/week7/`.
+### Real-machine evaluation
+
+All 20 tasks were run 3 times each on a 1920×1080 Windows PC (150% scaling) with LLaVA as the fallback model. Raw data: `results/eval_runs_v2.csv`; statistics, Excel and charts: `results/week7/`.
+
+| | Runs | Success |
+|---|---|---|
+| L1 single step | 18 | 13 (72.2%) |
+| L2 two or three steps | 24 | 21 (87.5%) |
+| L3 hard | 18 | 12 (66.7%) |
+| **Total** | **60** | **46 (76.7%)** |
+
+Mean time of a successful run: 10.0 s (about 2.1 s for an app launch, 9–16 s for two or three steps).
+
+![Per-task success rate](results/week7/fig2_per_task.png)
+
+What the numbers show:
+
+- **The rule path is the reliable part.** Runs decided entirely by rules and system commands succeeded 42 of 48 times. Runs that needed LLaVA succeeded 4 of 12 times, and 8 of the 14 failures are `llm_invalid` (LLaVA returned an ID that was not on screen, three times in a row). This is the main argument for the rules-first design, and the reason a fine-tuned decision model (week 5) is worth finishing.
+- **A bug found and fixed.** A first partial run (18 runs, `results/eval_runs.csv`) showed that `explorer.exe` returns exit code 1 even when the window opens, so "open File Explorer" was treated as a failed launch and handed to the LLM (0/3). Launch commands are now started without checking the exit code, and the screen-change check decides; T05 then passed 3/3 in 2.1 s.
+- **Open issue: Notepad.** "Open Notepad" (T01) launches the app every time, but the automatic check on the final screen never finds "Notepad"/"Untitled", so it fails 0/3. Most of the 6 false positives (executor reports success, task judged not done) are Notepad tasks. The cause is still being investigated from the saved screenshots (possibly the final screen is captured before the window has finished drawing).
+- **Known limits behave as expected.** T17 (typing into Notepad's blank edit area, which has no text to anchor on) fails as designed, and T15 fails at the last step because LLaVA cannot pick the "Images" tab.
+
+The vision-only condition (`--no-launch`) has not been run on a real machine yet.
 
 The LoRA fine-tuning pipeline (synthetic data with leakage checks, training, a five-configuration evaluation and report generation) is in `training/`. The GPU evaluation results are not included in this repository.
 
@@ -236,4 +258,5 @@ Use the trained adapter with `python main.py --agent lora --adapter outputs/lora
 - Verification can show that "the screen changed" and "the typed text appeared", but not that a click hit the right target.
 - Re-planning depends on an LLM and relies only on the text on screen.
 - The threshold, downscaling and masking studies were run on synthetic screens; on a new machine, re-check them with the tools above.
-- The real-machine evaluation is incomplete (18 of 60 planned runs).
+- The LLaVA fallback is weak: it succeeded in 4 of the 12 real-machine runs that reached it.
+- The real-machine evaluation covers one machine and one display setting, and the vision-only condition has not been run.

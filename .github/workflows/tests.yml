@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # The tests replace pyautogui / pyperclip / OCR with fakes, so no display, GPU or OCR engine is needed.
+      - name: Install test dependencies
+        run: pip install numpy opencv-python-headless matplotlib openpyxl
+      - name: Unit tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Fault-injection scenarios
+        run: python -m tests.run_fault_injection
+      - name: Rule-routing comparison
+        run: python -m tests.run_routing_eval

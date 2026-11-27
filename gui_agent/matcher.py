@@ -214,17 +214,18 @@ def parse_wait(instruction, default=2.0, cap=30.0):
     return min(float(m.group("n")), cap) if m.group("n") else default
 
 
-# "go to github.com/x", "visit www.wikipedia.org", "访问 www.baidu.com" (访问 = visit): open a URL in the current
+# "go to github.com/x", "visit www.wikipedia.org", "访问 www.baidu.com" (访问 = visit), or a bare URL: open it in the current
 # browser through the address bar (Ctrl+L), instead of looking for an input box on the page. Typing into the
 # page's own search box sends the URL to the search engine rather than opening it.
-_NAVIGATE = re.compile(
-    r"^\s*(?:go\s+to|visit|navigate\s+to|open|访问|打开网址|打开网站)\s*"
-    r"(?P<url>(?:https?://)?[\w-]+(?:\.[\w-]+)+(?::\d+)?(?:/\S*)?)\s*$", re.I)
+_URL = r"(?:https?://)?[\w-]+(?:\.[\w-]+)+(?::\d+)?(?:/\S*)?"
+_NAVIGATE = re.compile(r"^\s*(?:go\s+to|visit|navigate\s+to|open|访问|打开网址|打开网站)\s*(?P<url>" + _URL + r")\s*$", re.I)
+# A bare URL needs a scheme, "www." or a path, so file names like "agent.py" or "report.docx" stay clicks
+_BARE_URL = re.compile(r"^\s*(?P<url>https?://\S+|www\.[\w-]+(?:\.[\w-]+)+\S*|[\w-]+(?:\.[\w-]+)+/\S*)\s*$", re.I)
 
 
 def parse_navigate(instruction):
     """"go to github.com/zhanz565/gui-agent" -> "github.com/zhanz565/gui-agent"; None if it is not a URL."""
-    m = _NAVIGATE.match(instruction)
+    m = _NAVIGATE.match(instruction) or _BARE_URL.match(instruction)
     return m.group("url") if m else None
 
 

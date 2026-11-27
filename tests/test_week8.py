@@ -162,8 +162,9 @@ class TestNavigate(unittest.TestCase):
         self.assertEqual(parse_navigate("go to github.com/zhanz565/gui-agent"), "github.com/zhanz565/gui-agent")
         self.assertEqual(parse_navigate("visit https://www.wikipedia.org"), "https://www.wikipedia.org")
         self.assertEqual(parse_navigate("访问 www.baidu.com"), "www.baidu.com")
+        self.assertEqual(parse_navigate("https://github.com/zhanz565/gui-agent"), "https://github.com/zhanz565/gui-agent")
         self.assertEqual(detect_intent("go to github.com/x"), "navigate")
-        for not_url in ("go to settings", "open notepad", "open Chrome", "go to the Images tab"):
+        for not_url in ("go to settings", "open notepad", "open Chrome", "go to the Images tab", "click 7", "点击 1.5", "agent.py", "report.docx"):
             self.assertIsNone(parse_navigate(not_url), not_url)
 
     def test_planner_keeps_url_step(self):

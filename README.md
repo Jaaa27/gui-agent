@@ -8,6 +8,10 @@ English | [中文](README.zh-CN.md)
 
 A desktop GUI agent for Windows. You give it an instruction in one sentence (Chinese or English). It takes a screenshot, uses OCR to find and number the text on screen, decides where to click and what to type into which input box, drives the mouse and keyboard, and then checks whether the action actually took effect.
 
+![Demo: the agent searches the weather and opens Images, then opens this repository and scrolls to the architecture diagram](docs/media/demo_gui_agent.gif)
+
+*Two real runs on a Windows desktop, idle waiting trimmed. First: Edge is launched with a system command, the rule matcher finds the search box and types the query, then clicks the Images tab. Second: the URL goes straight into the address bar and the page scrolls down.*
+
 It was built as an 8-week internship project on multimodal-LLM GUI agents. The design choice that runs through it is **rules first, LLM as fallback**: common clicks and typing are matched to on-screen elements by deterministic rules, and only when the rules find no target is a vision-language model (local LLaVA, or a LoRA-fine-tuned Qwen2.5-1.5B) asked to pick an element. The model may only choose from the IDs that are actually on screen.
 
 ![Architecture](results/final/fig_architecture_en.png)

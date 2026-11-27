@@ -8,6 +8,10 @@
 
 一个运行在 Windows 上的桌面 GUI 智能体：用一句中文（或英文）告诉它要做什么，它截取屏幕，用 OCR 找到屏幕上的文字并编号，决定点哪里、往哪个输入框输入什么，然后操作鼠标键盘，并检查操作有没有生效。
 
+![演示：agent 搜索天气并切到图片，然后打开本仓库并滚动到架构图](docs/media/demo_gui_agent.gif)
+
+*在真实 Windows 桌面上的两次运行，等待时间已剪掉。第一段：用系统命令启动 Edge，规则找到搜索框并输入，再点击“Images”标签。第二段：网址直接输入地址栏，然后向下滚动。*
+
 这是一个 8 周实习项目，各周的报告都在 `docs/` 目录，结项报告见 `docs/final_report.md`（Word 版：`docs/final_report.docx`）。
 
 ![架构](results/final/fig_architecture.png)

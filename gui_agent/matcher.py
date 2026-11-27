@@ -214,9 +214,24 @@ def parse_wait(instruction, default=2.0, cap=30.0):
     return min(float(m.group("n")), cap) if m.group("n") else default
 
 
+# "go to github.com/x", "visit www.wikipedia.org", "访问 www.baidu.com" (访问 = visit): open a URL in the current
+# browser through the address bar (Ctrl+L), instead of looking for an input box on the page. Typing into the
+# page's own search box sends the URL to the search engine rather than opening it.
+_NAVIGATE = re.compile(
+    r"^\s*(?:go\s+to|visit|navigate\s+to|open|访问|打开网址|打开网站)\s*"
+    r"(?P<url>(?:https?://)?[\w-]+(?:\.[\w-]+)+(?::\d+)?(?:/\S*)?)\s*$", re.I)
+
+
+def parse_navigate(instruction):
+    """"go to github.com/zhanz565/gui-agent" -> "github.com/zhanz565/gui-agent"; None if it is not a URL."""
+    m = _NAVIGATE.match(instruction)
+    return m.group("url") if m else None
+
+
 def parse_direct(instruction):
-    """Return ("hotkey", [keys...]) / ("scroll", (direction, notches)) / ("wait", seconds), or None."""
-    for kind, fn in (("wait", parse_wait), ("scroll", parse_scroll), ("hotkey", parse_hotkey)):
+    """Return ("hotkey", [keys...]) / ("scroll", (direction, notches)) / ("wait", seconds) / ("navigate", url), or None."""
+    for kind, fn in (("wait", parse_wait), ("scroll", parse_scroll), ("hotkey", parse_hotkey),
+                     ("navigate", parse_navigate)):
         v = fn(instruction)
         if v is not None:
             return kind, v

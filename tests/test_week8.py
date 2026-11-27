@@ -16,7 +16,7 @@ PG, PC = install_fake_gui_modules()
 import gui_agent.controller as controller_mod
 from gui_agent.controller import DesktopController
 from gui_agent.executor import ExecConfig, TaskExecutor
-from gui_agent.matcher import detect_intent, parse_direct, text_visible
+from gui_agent.matcher import detect_intent, parse_direct, parse_navigate, text_visible
 from gui_agent.monitor import TaskMonitor
 from gui_agent.perceiver import PaddleReader, ScreenPerceiver, paddle_to_easyocr
 from gui_agent.planner import TaskPlanner
@@ -140,6 +140,55 @@ class TestDirectActions(unittest.TestCase):
         r = make(w, direct_actions=False).run("按 Ctrl+S")
         self.assertFalse(r.ok)
         self.assertEqual(r.steps[0].reason, "no_candidate")
+
+
+class NavController(KeyController):
+    """Ctrl+L then typing a URL with Enter opens the "site" state, whose page shows the URL."""
+    def __init__(self, world, opens=True, **kw):
+        super().__init__(world, **kw)
+        self.opens = opens
+        world.states["site"] = {"elements": {70: {"text": "github.com/zhanz565/gui-agent", "center": (400, 60)}},
+                                "on_click": {}}
+
+    def type_text(self, text, interval=0.05, press_enter=False):
+        super().type_text(text, interval, press_enter)
+        if self.opens and press_enter and self.pressed[-1:] == ["ctrl+l"]:
+            self.world.goto("site")
+        return True
+
+
+class TestNavigate(unittest.TestCase):
+    def test_parse(self):
+        self.assertEqual(parse_navigate("go to github.com/zhanz565/gui-agent"), "github.com/zhanz565/gui-agent")
+        self.assertEqual(parse_navigate("visit https://www.wikipedia.org"), "https://www.wikipedia.org")
+        self.assertEqual(parse_navigate("访问 www.baidu.com"), "www.baidu.com")
+        self.assertEqual(detect_intent("go to github.com/x"), "navigate")
+        for not_url in ("go to settings", "open notepad", "open Chrome", "go to the Images tab"):
+            self.assertIsNone(parse_navigate(not_url), not_url)
+
+    def test_planner_keeps_url_step(self):
+        steps = [s.text for s in TaskPlanner().decompose(
+            "open Chrome then go to github.com/zhanz565/gui-agent then scroll down")]
+        self.assertEqual(steps, ["open Chrome", "go to github.com/zhanz565/gui-agent", "scroll down"])
+
+    def test_uses_address_bar(self):
+        w = World("chrome")
+        ctrl = NavController(w)
+        r = make(w, ctrl).run("go to github.com/zhanz565/gui-agent")
+        self.assertTrue(r.ok)
+        self.assertEqual(r.steps[0].route, "direct")
+        self.assertEqual(ctrl.pressed, ["ctrl+l"])
+        self.assertEqual(w.typed, ["github.com/zhanz565/gui-agent"])
+        self.assertEqual(ctrl.clicks, [])                  # never clicks a search box on the page
+        self.assertFalse(r.steps[0].unverified)
+
+    def test_no_effect_is_retried(self):
+        w = World("chrome")
+        ctrl = NavController(w, opens=False)
+        r = make(w, ctrl).run("go to github.com/zhanz565/gui-agent")
+        self.assertFalse(r.ok)
+        self.assertEqual(r.steps[0].reason, "no_screen_change")
+        self.assertEqual(r.steps[0].attempts, 3)
 
 
 class TestTextCheck(unittest.TestCase):

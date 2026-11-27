@@ -1,6 +1,6 @@
 # Desktop GUI Agent
 
-[![tests](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml)
+[![tests](https://github.com/zhanz565/gui-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/zhanz565/gui-agent/actions/workflows/tests.yml)
 
 English | [中文](README.zh-CN.md)
 
@@ -18,7 +18,7 @@ It was built as an 8-week internship project on multimodal-LLM GUI agents. The d
 - **Failure-aware execution.** The executor classifies failures into 11 types and handles each one differently: wait and rescan, ask the LLM again without the elements it already tried, switch target after repeated failures, or re-plan the remaining steps from the current screen.
 - **Verification.** Each action is checked against a before/after screen signature (64×36 grayscale, cell counting, with regions that change on their own masked out). After typing, the agent rescans the screen to check the text actually appears.
 - **Measured parameters.** The verification threshold, OCR downscaling limit and dynamic-region masking were chosen from experiments, not guessed (`scripts/study_*.py`).
-- **Testable without a screen.** Perception, control, the LLM and app launching can all be replaced by fakes, so 67 unit tests and 26 fault-injection scenarios run on any machine, including CI.
+- **Testable without a screen.** Perception, control, the LLM and app launching can all be replaced by fakes, so 71 unit tests and 26 fault-injection scenarios run on any machine, including CI.
 
 ## Results
 
@@ -77,7 +77,7 @@ More logs from the fault-injection scenarios are in `results/week6/sample_logs/`
 2. **System commands**: "open Notepad / Calculator / File Explorer / Chrome / Edge" is first tried with a system command. If the screen does not change, the agent falls back to the visual path.
 3. **Perceive**: take a screenshot, recognize text with EasyOCR (or PaddleOCR), and give every text block an ID together with its center coordinates (Set-of-Mark).
 4. **Decide**: rules come first. Click instructions are scored against on-screen text by keyword; type instructions first look for an input box. Only when the rules find no target are the screenshot and element list passed to an LLM, which may only choose from the listed IDs.
-5. **Act**: click, type (non-ASCII text is pasted through the clipboard), press keys, scroll, wait.
+5. **Act**: click, type (non-ASCII text is pasted through the clipboard), press keys, scroll, wait, and open a URL through the browser address bar (Ctrl+L), so "go to github.com/..." never ends up as a search-engine query.
 6. **Verify**: compare the screen before and after the action. For type steps, also rescan the screen to check that the typed text appears.
 7. **Retry**: handle each failure according to its cause, e.g. try the next candidate, tell the model which elements were already tried, or wait for the page to load before scanning again. Optionally, the LLM can re-plan the remaining steps.
 
@@ -112,6 +112,7 @@ Then type instructions at the prompt, for example:
     open Edge then search weather then click Images
     open notepad then press ctrl+s
     open Chrome then search weather then scroll down
+    open Chrome then go to github.com/zhanz565/gui-agent then scroll down
     wait 3 seconds
 
 Chinese works the same way, e.g. `打开 Chrome 然后 搜索 天气`.
@@ -195,7 +196,7 @@ A note on language: comments, logs and documentation in the code are in English.
 
 No screen or GPU required:
 
-    python -m unittest discover -s tests -t .       # 67 unit tests
+    python -m unittest discover -s tests -t .       # 71 unit tests
     python -m tests.run_routing_eval                # rule-routing comparison
     python -m tests.run_fault_injection             # 26 fault scenarios + random-fault simulation
 

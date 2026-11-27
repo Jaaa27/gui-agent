@@ -1,6 +1,6 @@
 # 桌面 GUI 智能体
 
-[![tests](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/Jaaa27/gui-agent/actions/workflows/tests.yml)
+[![tests](https://github.com/zhanz565/gui-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/zhanz565/gui-agent/actions/workflows/tests.yml)
 
 [English](README.md) | 中文
 
@@ -39,7 +39,7 @@ LoRA 微调的完整流水线（带防泄漏检查的合成数据、训练、五
 2. **系统命令**：“打开记事本 / 计算器 / 资源管理器 / Chrome / Edge”优先直接用系统命令启动，启动后画面没变化就改走视觉路径。
 3. **感知**：截图，用 EasyOCR（或 PaddleOCR）识别文字，每段文字编号并记下中心坐标。
 4. **决策**：先用规则匹配（点击按关键词打分，输入先找输入框）；规则找不到目标，才把截图和元素列表交给大模型（本地 LLaVA，或第 5 周微调的 LoRA 模型），大模型只能从编号里选。
-5. **执行**：点击、输入（中文走剪贴板粘贴）、按键、滚动、等待。
+5. **执行**：点击、输入（中文走剪贴板粘贴）、按键、滚动、等待，以及通过浏览器地址栏（Ctrl+L）打开网址，避免“访问 github.com/...”被当成搜索词交给搜索引擎。
 6. **验证**：比较操作前后的画面；输入类步骤还会复查屏幕上有没有出现输入的内容。
 7. **重试**：失败时按原因处理，比如换下一个候选、告诉大模型哪些元素试过了、等页面加载完再扫描；需要时让大模型重新规划剩下的步骤。
 
@@ -74,6 +74,7 @@ LoRA 微调的完整流水线（带防泄漏检查的合成数据、训练、五
     打开 Edge 然后 搜索 天气 然后 点击 图片
     打开记事本 然后 按 Ctrl+S
     打开 Chrome 然后 搜索 天气 然后 向下滚动
+    打开 Chrome 然后 访问 github.com/zhanz565/gui-agent 然后 向下滚动
     等待 3 秒
 
 输入 `校准` 会重新校准画面里自己在变化的区域（视频、动图）；输入 `exit` 退出。鼠标甩到屏幕任意一个角落可以紧急停止。
@@ -151,7 +152,7 @@ LoRA 微调的完整流水线（带防泄漏检查的合成数据、训练、五
 
 不需要屏幕和 GPU：
 
-    python -m unittest discover -s tests -t .       # 67 个单元测试
+    python -m unittest discover -s tests -t .       # 71 个单元测试
     python -m tests.run_routing_eval                # 规则路由对比
     python -m tests.run_fault_injection             # 26 个故障场景 + 随机故障模拟
 

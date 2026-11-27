@@ -192,11 +192,13 @@ class TaskExecutor:
         return [str(v.get("text", "")) for v in elements.values()]
 
     def _direct(self, kind, arg, tm):
-        """Hotkey / scroll / wait."""
+        """Hotkey / scroll / wait / navigate."""
         cfg, ctrl = self.cfg, self.controller
         if kind == "wait":
             self.sleep(arg)
             return Outcome(True, route="direct", detail=f"wait {arg:g}s", timings=tm)
+        if kind == "navigate":
+            return self._navigate(arg, tm)
         fn = getattr(ctrl, "hotkey" if kind == "hotkey" else "scroll", None)
         if fn is None:
             return Outcome(False, ACTION_FAILED, route="direct", detail=f"controller does not support {kind}", timings=tm)
@@ -223,6 +225,42 @@ class TaskExecutor:
                 # Happens when already scrolled to the end, or the hotkey has no visible effect; don't retry
                 self.log.info("  screen unchanged after %s, marked unverified", detail)
                 unverified = True
+        return Outcome(True, route="direct", detail=detail, timings=tm, unverified=unverified)
+
+    def _navigate(self, url, tm):
+        """Focus the browser address bar with Ctrl+L, type the URL and press Enter."""
+        cfg, ctrl = self.cfg, self.controller
+        if not (hasattr(ctrl, "hotkey") and hasattr(ctrl, "type_text")):
+            return Outcome(False, ACTION_FAILED, route="direct", detail="controller does not support navigate", timings=tm)
+        before = self._signature()
+        t0 = time.perf_counter()
+        ok = ctrl.hotkey("ctrl", "l") is not False
+        if ok:
+            self.sleep(cfg.focus_delay)
+            ok = ctrl.type_text(url, press_enter=True) is not False
+        tm["act"] = time.perf_counter() - t0
+        inval = getattr(self.perceiver, "invalidate", None)
+        if inval:
+            inval()
+        detail = f"navigate {url}"
+        if not ok:
+            return Outcome(False, ACTION_FAILED, route="direct", detail=detail, timings=tm)
+        if not cfg.verify:
+            return Outcome(True, route="direct", detail=detail, timings=tm)
+        self.sleep(cfg.settle_delay)
+        after = self._signature()
+        if before is not None and after is not None and not self._changed(before, after):
+            # Nothing happened at all (e.g. no browser window in front). Retrying is safe: Ctrl+L selects the
+            # whole address bar, so the URL replaces whatever was typed before.
+            return Outcome(False, NO_SCREEN_CHANGE, route="direct", detail=detail, timings=tm)
+        unverified = False
+        if cfg.verify_text:
+            try:
+                if not text_visible(url.split("://")[-1], self._screen_texts()):
+                    self.log.warning("  %r not found on screen after navigating, marked unverified", url)
+                    unverified = True
+            except Exception as e:
+                self.log.debug("post-navigation check failed: %s", e)
         return Outcome(True, route="direct", detail=detail, timings=tm, unverified=unverified)
 
     def _attempt(self, step, st):
